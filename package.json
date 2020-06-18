@@ -1,0 +1,19 @@
+{
+  "name": "handheldyam.github.io",
+  "version": "1.0.0",
+  "description": "PlanningPoker",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HandHeldYam/HandHeldYam.github.io.git"
+  },
+  "author": "HandHeldYam",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/HandHeldYam/HandHeldYam.github.io/issues"
+  },
+  "homepage": "https://github.com/HandHeldYam/HandHeldYam.github.io#readme"
+}
