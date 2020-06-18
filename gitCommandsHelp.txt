@@ -1,0 +1,9 @@
+how to add files:
+	git pull --rebase (always do this first)
+	git add fileName (this is what staging is)
+	git status (should be in green if it's ready)
+	git commit -m 'message'
+	git push
+
+how to get new updates:
+	git pull --rebase
