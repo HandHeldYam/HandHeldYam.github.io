@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/HandHeldYam/HandHeldYam.github.io/issues"
   },
-  "homepage": "https://github.com/HandHeldYam/HandHeldYam.github.io#readme"
+  "homepage": "https://github.com/HandHeldYam/HandHeldYam.github.io#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
