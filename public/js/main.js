@@ -127,7 +127,7 @@
 				},
 				body: JSON.stringify(data)
 		};
-		fetch('/api', options);
+		fetch('/UserApi', options);
  }
 
  function generateCode(){

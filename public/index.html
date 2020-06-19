@@ -17,6 +17,7 @@
 		<div id="div1">
 				<p id="userNameDisplay">Username: </p>
 				<p id="roomCodeDisplay">Room Code:</p>
+				<!--<input id="textarea2" type=text maxlength="7">-->
 		</div>
 		<div id="div2">
 				<label for="positions">Who are you?</label>
@@ -29,7 +30,8 @@
 				</select>
 				<input id="textarea1" type=text>
 				<button id="submit" onclick='submitButton()'>submit</button>
-				<button id="generateCode" onclick='generateCode()'>Generate Room Code</button>
+				<button id="generateCode" onclick='generateCode()' style="visibility:hidden">Generate Room Code</button>
+				
 
 
 
@@ -43,25 +45,28 @@
 			</footer>
 
 		<!-- Scripts -->
+		<script src="js/main.js"></script>
 	<script>
 	function submitButton(){
 
     var dDM = document.getElementById("positions"); // gets the dropdown menu from DOM
-    var input = dDM.options[dDM.selectedIndex].text //gets selected item from dropDownMenu
-    var text = document.getElementById("textarea1").value; //gets input from textbox
-    if(text == ""){
+    var type = dDM.options[dDM.selectedIndex].text //gets selected item from dropDownMenu
+    var name = document.getElementById("textarea1").value; //gets input from textbox
+    if(name == ""){
         alert("Must Enter Name Before Sumbission");//make alert when <input> has no vlaue
         return;
     }
-    document.getElementById('userNameDisplay').innerHTML = "Username: " + text;
+    document.getElementById('userNameDisplay').innerHTML = "Username: " + name;
 
-    if(input == "Scrum Master"){ //if ScrumMaster is selected reveal generateCode Button
+    if(type == "Scrum Master"){ //if ScrumMaster is selected reveal generateCode Button
         document.getElementById("generateCode").style.visibility = "visible";
+		//document.getElementById("textarea2").style.visibility = "hidden";
     } else {//otherwise Make sure it is hidden (if previously selected SM)
         document.getElementById("generateCode").style.visibility = "hidden";
+		//document.getElementById("textarea2").style.visibility = "visible";
         document.getElementById("roomCodeDisplay").innerHTML = "Room Code:";
     }
-		const data = {text, input};
+		const data = {name, type};
 		const options = {
 				method: 'POST',
 				headers: {
