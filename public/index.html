@@ -17,21 +17,23 @@
 		<div id="div1">
 				<p id="userNameDisplay">Username: </p>
 				<p id="roomCodeDisplay">Room Code:</p>
-				<!--<input id="textarea2" type=text maxlength="7">-->
 		</div>
 		<div id="div2">
-				<label for="positions">Who are you?</label>
-				<select name="positions" id="positions">
-						<option value = "Scrum Master">Scrum Master</option>
+				<h3 for="positions">Who are you?</h3>
+				<select name="positions" id="positions" required>
+						<option value="badOption"> Choose Here </option>
+						<option id="SMButton" value = "Scrum Master">Scrum Master</option>
 						<option value = "Product Team">Product Team</option>
 						<option value = "Member">Member</option>
 						<option value = "BA/PO">BA/PO</option>
 						<option value = "Guest">Guest</option>
 				</select>
 				<input id="textarea1" type=text>
-				<button id="submit" onclick='submitButton()'>submit</button>
-				<button id="generateCode" onclick='generateCode()' style="visibility:hidden">Generate Room Code</button>
-				
+				<button id="submit" onclick='submitButton()'>Submit</button>
+				<button id="generateCode" onclick='generateCode()' style="visibility:hidden">Create Room</button>
+				<h3> Trying to join an existing room? Enter code here: </h3>
+				<input id="textarea2" type=text maxlength="7">
+				<button id="submit2" onclick='submitButton2()'>Submit</button>
 
 
 
@@ -47,6 +49,9 @@
 		<!-- Scripts -->
 		<script src="js/main.js"></script>
 	<script>
+	function showGenerateCode(){
+		document.getElementById("generateCode").style.visibility = "visible";
+	}
 	function submitButton(){
 
     var dDM = document.getElementById("positions"); // gets the dropdown menu from DOM
@@ -59,11 +64,11 @@
     document.getElementById('userNameDisplay').innerHTML = "Username: " + name;
 
     if(type == "Scrum Master"){ //if ScrumMaster is selected reveal generateCode Button
-        document.getElementById("generateCode").style.visibility = "visible";
-		//document.getElementById("textarea2").style.visibility = "hidden";
+        showGenerateCode();
+		document.getElementById("textarea2").style.visibility = "hidden";
     } else {//otherwise Make sure it is hidden (if previously selected SM)
         document.getElementById("generateCode").style.visibility = "hidden";
-		//document.getElementById("textarea2").style.visibility = "visible";
+		document.getElementById("textarea2").style.visibility = "visible";
         document.getElementById("roomCodeDisplay").innerHTML = "Room Code:";
     }
 		const data = {name, type};
@@ -74,7 +79,23 @@
 				},
 				body: JSON.stringify(data)
 		};
-		fetch('/api', options);
+		fetch('/UserApi', options);
+ }
+ function submitButton2(){
+	 var roomCode = document.getElementById("textarea2").value;
+	 if(roomCode == ""){
+		 alert("Must enter 7-Digit room code");
+		 return;
+	 }
+	 const data = {roomCode};
+	 const options = {
+		 method:'POST',
+		 headers: {
+			 "Content-Type": "application/json"
+		 },
+		 body: JSON.stringify(data)
+	 }
+	 fetch('/roomCodeApi', options);
  }
 
  function generateCode(){

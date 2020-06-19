@@ -102,51 +102,6 @@
 	// Login function
 		(function() {
 
-		function submitButton(){
-
-    var dDM = document.getElementById("positions"); // gets the dropdown menu from DOM
-    var input = dDM.options[dDM.selectedIndex].text //gets selected item from dropDownMenu
-    var text = document.getElementById("textarea1").value; //gets input from textbox
-    if(text == ""){
-        alert("Must Enter Name Before Sumbission");//make alert when <input> has no vlaue
-        return;
-    }
-    document.getElementById('userNameDisplay').innerHTML = "Username: " + text + " Type: " + input; //changes the <p> userNameDisplay to say         ^
-
-    if(input == "Scrum Master"){ //if ScrumMaster is selected reveal generateCode Button
-        document.getElementById("generateCode").style.visibility = "visible";
-    } else {//otherwise Make sure it is hidden (if previously selected SM)
-        document.getElementById("generateCode").style.visibility = "hidden";
-        document.getElementById("roomCodeDisplay").innerHTML = "Room Code:";
-    }
-		const data = {text, type};
-		const options = {
-				method: 'POST',
-				headers: {
-						"Content-Type": "application/json"
-				},
-				body: JSON.stringify(data)
-		};
-		fetch('/UserApi', options);
- }
-
- function generateCode(){
-     var code = "";
-        for(var i = 0; i< 7;i++){
-            code += " " + parseInt(Math.random()*10);
-        }
-	 document.getElementById('roomCodeDisplay').innerHTML = "Room Code:" + code;
-	 const data = { code };
-				const options = {
-			 		 method: 'POST',
-			 		 headers:{
-			 				 "Content-Type": "application/json"
-			 		 },
-			 		 body: JSON.stringify(data)
-			  };
-			  fetch('/api', options);
-			 }
-
 				$form.addEventListener('submit', function(event) {
 
 					event.stopPropagation();
