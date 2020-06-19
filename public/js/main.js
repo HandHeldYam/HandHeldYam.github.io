@@ -135,13 +135,14 @@
         for(var i = 0; i< 7;i++){
             code += " " + parseInt(Math.random()*10);
         }
-        document.getElementById('roomCodeDisplay').innerHTML = "Room Code:" + code;
+	 document.getElementById('roomCodeDisplay').innerHTML = "Room Code:" + code;
+	 const data = { code };
 				const options = {
 			 		 method: 'POST',
 			 		 headers:{
 			 				 "Content-Type": "application/json"
 			 		 },
-			 		 body: JSON.stringify(code)
+			 		 body: JSON.stringify(data)
 			  };
 			  fetch('/api', options);
 			 }
