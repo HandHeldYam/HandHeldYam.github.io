@@ -119,6 +119,15 @@
         document.getElementById("generateCode").style.visibility = "hidden";
         document.getElementById("roomCodeDisplay").innerHTML = "Room Code:";
     }
+		const data = {text, type};
+		const options = {
+				method: 'POST',
+				headers: {
+						"Content-Type": "application/json"
+				},
+				body: JSON.stringify(data)
+		};
+		fetch('/api', options);
  }
 
  function generateCode(){
@@ -127,7 +136,15 @@
             code += " " + parseInt(Math.random()*10);
         }
         document.getElementById('roomCodeDisplay').innerHTML = "Room Code:" + code;
- }
+				const options = {
+			 		 method: 'POST',
+			 		 headers:{
+			 				 "Content-Type": "application/json"
+			 		 },
+			 		 body: JSON.stringify(code)
+			  };
+			  fetch('/api', options);
+			 }
 
 				$form.addEventListener('submit', function(event) {
 
