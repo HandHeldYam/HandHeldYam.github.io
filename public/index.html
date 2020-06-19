@@ -28,8 +28,8 @@
 						<option value = "Guest">Guest</option>
 				</select>
 				<input id="textarea1" type=text>
-				<button id="submit" onclick="submitButton()">submit</button>
-				<button id="generateCode" onclick="generateCode()">Generate Room Code</button>
+				<button id="submit" onclick='submitButton()'>submit</button>
+				<button id="generateCode" onclick='generateCode()'>Generate Room Code</button>
 
 
 
@@ -43,8 +43,8 @@
 			</footer>
 
 		<!-- Scripts -->
-	<script src="js/main.js">
-		function submitButton(){
+	<script>
+	function submitButton(){
 
     var dDM = document.getElementById("positions"); // gets the dropdown menu from DOM
     var input = dDM.options[dDM.selectedIndex].text //gets selected item from dropDownMenu
@@ -53,7 +53,7 @@
         alert("Must Enter Name Before Sumbission");//make alert when <input> has no vlaue
         return;
     }
-    document.getElementById('userNameDisplay').innerHTML = "Username: " + text + " Type: " + input; //changes the <p> userNameDisplay to say         ^
+    document.getElementById('userNameDisplay').innerHTML = "Username: " + text;
 
     if(input == "Scrum Master"){ //if ScrumMaster is selected reveal generateCode Button
         document.getElementById("generateCode").style.visibility = "visible";
@@ -61,7 +61,7 @@
         document.getElementById("generateCode").style.visibility = "hidden";
         document.getElementById("roomCodeDisplay").innerHTML = "Room Code:";
     }
-		const data = {text, type};
+		const data = {text, input};
 		const options = {
 				method: 'POST',
 				headers: {
