@@ -12,6 +12,13 @@ app.get('/', (req, res) => {
     res.sendFile(dirName + '/index.html');
     console.log("used me");
 });
+// app.get('/connectionTest', (req, res) => {
+//     res.sendFile('connectionTest.html');
+//     console.log('sending connectionTest page');
+// })
+io.on('connection', (socket) => {
+    console.log('a user connected');
+})
 app.post('/UserApi', (request, response) => {
     console.log("request recieved");
     console.log(request.body);
