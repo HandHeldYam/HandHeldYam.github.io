@@ -3,280 +3,97 @@
 
 <head>
     <title>ASF Virtual App</title>
-    <h1 class="header"><img class="asflogo" src="images/asf-logo.png"></h1>
-    <h2 class="right"></h2>
-    <h3 class="gofar">GO FAR TOGETHER.</h3>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <link rel="stylesheet" href="css/main.css" />
-
 </head>
 
 <body>
-    <div class="menu">
-        <ul style="list-style: none;">
-            <li><a href="mainMenu.html" class='button'> Home</a></li>
-            <li><a href="planningPoker.htm" class='button'> Planning Poker</a></li>
-            <li><a href="retrospectives.htm" class='button'> Retrospectives</a></li>
-            <li><a href="asfWiki.htm" class='button'> More about ASF</a></li>
-        </ul>
+    <h1 class="header"><img class="asflogo" src="images/asf-transparent.png"></h1>
+    <h2 class="gofar">GO FAR TOGETHER.</h2>
+    <div class="button-group">
+        <a href="index.html" class="button">
+            <figure><img src="images/planningPoker.png"></figure>
+            <div class="text">
+                Planning Poker
+            </div>
+        </a>
+        <a href="#" class="button">
+            <figure><img src="images/retrospectives.png"></figure>
+            <div class="text">
+                Retrospectives
+            </div>
+        </a>
+        <a href="#" class="button">
+            <figure><img src="images/wiki.png"></figure>
+            <div class="text">
+                ASF Wiki
+            </div>
+        </a>
     </div>
-
-    <div class="description">
-        <p class="info">CACI’s Agile Solution Factory (ASF) optimizes Agile software development, delivering the
-            benefits of Agile at an enterprise scale. The results of CACI’s ASF on large government programs include
-            increased end-user
-            satisfaction through higher quality and more secure software deployed on shorter release cycles.</p>
-    </div>
-
-
 </body>
-
 <style>
-    @import url('https://fonts.googleapis.com/css?family=Josefin+Sans&display=swap');
-    @import url("https://fonts.googleapis.com/css?family=Roboto:400,700");
-
-    .header>.asflogo {
-        max-width: 100%;
-        max-height: 25%;
-        top: 0;
-        left: 0;
-        position: fixed;
-        overflow-x: hidden;
-    }
-
-    .header {
-        background-color: black;
-        display: block;
-        position: absolute;
-        margin: 0;
-        top: 0;
-        left: 0;
-        width: 20%;
-        height: 100%;
-        z-index: -1;
-    }
-
-    .right {
-        background-image: linear-gradient(to right, black, #338F82);
-        display: block;
-        position: absolute;
-        margin: 0;
-        top: 0;
-        right: 0;
-        width: 80%;
-        height: 100%;
-        z-index: -1;
-    }
-
-    .menu {
-        height: 75%;
-        width: auto;
-        position: fixed;
-        z-index: 1;
-        bottom: 0;
-        left: -2%;
-        overflow-x: hidden;
-        color: white;
-    }
-
-    .menu ul li {
-        padding: 8px;
-        color: white;
-        border-bottom: 1px solid #bdb8d7;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        border-top: 1px solid rgba(255, 255, 255, 0.05);
-        background-color: #44bfad;
-        margin: 10px;
-    }
-
-    .menu ul li a {
-        color: white;
-        display: block;
-
-    }
-
-
-    .menu ul li:hover {
-        background-color: #3bab9a;
-    }
-
-    .button {
-        text-decoration: none;
-        font-family: 'Roboto', Verdana, sans-serif;
-        color: tomato;
-        font-weight: bold;
-        font-size: 1.3vw;
-        text-align: center;
-        line-height: 250%;
-        border-radius: 5px;
-        margin: 20px;
-    }
-
-
-    .button:visited {
-        color: #000000
-    }
-
-    .info {
-        color: white;
-        font-family: 'Roboto', Verdana, sans-serif;
-        font-size: 1.5vw;
-        text-align: center;
-        position: absolute;
-        width: 50%;
-        top: 40%;
-        left: 25%;
-    }
-
     .gofar {
         color: white;
         font-family: 'Roboto', Verdana, sans-serif;
         font-size: 5vw;
         font-weight: bold;
         text-align: center;
-        position: absolute;
+        position: fixed;
         width: 50%;
-        top: 20%;
+        top: 23%;
+        left: 30%;
+    }
+
+    .header>.asflogo {
+        height: auto;
+        width: 25vw;
+        top: 8%;
+        left: 3%;
+        position: fixed;
+        overflow-x: hidden;
+        opacity: 1;
+    }
+
+    .button-group {
         left: 25%;
+        bottom: 10%;
+        position: absolute;
+        text-align: center;
+    }
+
+    .button-group .button {
+        height: 17vw;
+        width: 15vw;
+        background-color: #44bfad;
+        border-radius: 6px;
+        margin-left: .7vw;
+        opacity: .8;
+        padding: 1vw;
+        text-align: center;
+    }
+
+    .button-group .button:hover {
+        background-color: #44bfad;
+        opacity: 1;
+    }
+
+    .button-group .button .text {
+        font-size: 1.4vw;
+        color: white;
+        font-family: "EncodeSans-Regular", Helvetica, Arial, sans-serif;
+        text-align: center;
+        text-transform: uppercase;
+    }
+
+    .button-group figure img {
+        height: auto;
+        width: 11vw;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
     }
 </style>
-<script>
-/*
-
-	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
-*/
-
-(function() {
-
-	"use strict";
-
-	var	$body = document.querySelector('body');
-
-	// Methods/polyfills.
-
-		// classList | (c) @remy | github.com/remy/polyfills | rem.mit-license.org
-			!function(){function t(t){this.el=t;for(var n=t.className.replace(/^\s+|\s+$/g,"").split(/\s+/),i=0;i<n.length;i++)e.call(this,n[i])}function n(t,n,i){Object.defineProperty?Object.defineProperty(t,n,{get:i}):t.__defineGetter__(n,i)}if(!("undefined"==typeof window.Element||"classList"in document.documentElement)){var i=Array.prototype,e=i.push,s=i.splice,o=i.join;t.prototype={add:function(t){this.contains(t)||(e.call(this,t),this.el.className=this.toString())},contains:function(t){return-1!=this.el.className.indexOf(t)},item:function(t){return this[t]||null},remove:function(t){if(this.contains(t)){for(var n=0;n<this.length&&this[n]!=t;n++);s.call(this,n,1),this.el.className=this.toString()}},toString:function(){return o.call(this," ")},toggle:function(t){return this.contains(t)?this.remove(t):this.add(t),this.contains(t)}},window.DOMTokenList=t,n(Element.prototype,"classList",function(){return new t(this)})}}();
-
-		// canUse
-			window.canUse=function(p){if(!window._canUse)window._canUse=document.createElement("div");var e=window._canUse.style,up=p.charAt(0).toUpperCase()+p.slice(1);return p in e||"Moz"+up in e||"Webkit"+up in e||"O"+up in e||"ms"+up in e};
-
-		// window.addEventListener
-			(function(){if("addEventListener"in window)return;window.addEventListener=function(type,f){window.attachEvent("on"+type,f)}})();
-
-	// Play initial animations on page load.
-		window.addEventListener('load', function() {
-			window.setTimeout(function() {
-				$body.classList.remove('is-preload');
-			}, 100);
-		});
-
-	// Slideshow Background.
-		(function() {
-
-			// Settings.
-				var settings = {
-
-					// Images.
-						images: {
-							'images/caci02.png': 'center',
-							'images/caci03.png': 'center',
-							'images/caci04.png': 'center'
-						},
-
-					// Delay.
-						delay: 6000
-
-				};
-
-			// Variables
-				var	index = 0, lastPos = 0,
-					$wrapper, $bgs = [], $bg,
-					k, v;
-
-
-				$wrapper = document.createElement('div');
-					$wrapper.id = 'bg';
-					$body.appendChild($wrapper);
-
-				for (k in settings.images) {
-
-
-						$bg = document.createElement('div');
-							$bg.style.backgroundImage = 'url("' + k + '")';
-							$bg.style.backgroundPosition = settings.images[k];
-							$wrapper.appendChild($bg);
-
-					// Add it to array.
-						$bgs.push($bg);
-
-				}
-
-
-				$bgs[index].classList.add('visible');
-				$bgs[index].classList.add('top');
-
-					if ($bgs.length == 1
-					||	!canUse('transition'))
-						return;
-
-				window.setInterval(function() {
-
-					lastPos = index;
-					index++;
-
-					// Wrap to beginning if necessary.
-						if (index >= $bgs.length)
-							index = 0;
-
-					// Swap top images.
-						$bgs[lastPos].classList.remove('top');
-						$bgs[index].classList.add('visible');
-						$bgs[index].classList.add('top');
-
-					// Hide last image after a short delay.
-						window.setTimeout(function() {
-							$bgs[lastPos].classList.remove('visible');
-						}, settings.delay / 2);
-
-				}, settings.delay);
-
-		})();
-
-	// Login function
-		(function() {
-
-				$form.addEventListener('submit', function(event) {
-
-					event.stopPropagation();
-					event.preventDefault();
-
-					// Hide message.
-						$message._hide();
-
-					// Disable submit.
-						$submit.disabled = true;
-
-
-						window.setTimeout(function() {
-
-							// Reset form.
-								$form.reset();
-
-							// Enable submit.
-								$submit.disabled = false;
-
-							// Show message.
-								$message._show('success', 'Logging you in to Scrum Session');
-								//$message._show('Authentication failed. Please try again.');
-
-						}, 750);
-
-				});
-
-		})();
-
-})();
-</script>
+<script src="js/main.js"></script>
 
 </html>
