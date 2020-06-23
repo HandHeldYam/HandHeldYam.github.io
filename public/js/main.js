@@ -35,9 +35,9 @@
 
 					// Images.
 						images: {
-							'images/caci01.jpg': 'center',
-							'images/caci02.jpg': 'center',
-							'images/caci03.jpg': 'center'
+							'images/caci06.png': 'center',
+							'images/caci05.png': 'center',
+							'images/caci04.png': 'center'
 						},
 
 					// Delay.
