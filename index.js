@@ -1,7 +1,8 @@
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
-const io = require('socket.io').listen(server);
+var socket = require('socket.io');
+var io = socket(server);
 const dirName = 'HandHeldYam.github.io/';
 
 server.listen(3000, () => console.log('Listening on Port 3000'));
@@ -9,10 +10,12 @@ app.use(express.static('public'));//uses files in the "public" folder
 app.use(express.json({ limit: '1mb' }));
 var participants = [];
 
-io.on('connection', (socket) => {
-    console.log('a user connected');
+// app.get('/', (req, res) => {
+//     res.sendFile(dirName + '/connectionTest.html');
+// });
+io.sockets.on('connection', (socket) => {
+    console.log('new connection: ' + socket.id);
 });
-
 app.post('/UserApi', (request, response) => {
     console.log("request recieved");
     console.log(request.body);
