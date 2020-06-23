@@ -6,7 +6,12 @@
 		<link rel="stylesheet" href="css/main.css" />
 	</head>
 	<body class="is-preload">
-
+		<script>
+			var socket = io();
+			socket.sockets.on('connection',()=>{
+				console.log('client connected');
+			});
+		</script>
 		<!--Heading-->
 			<header id="header">
 				<h1>Welcome to ASFVirtual! </h1>
@@ -66,11 +71,15 @@
     if(type == "Scrum Master"){ //if ScrumMaster is selected reveal generateCode Button
         showGenerateCode();
 		document.getElementById("textarea2").style.visibility = "hidden";
-    } else {//otherwise Make sure it is hidden (if previously selected SM)
+    } else if(type == "Choose Here"){
+		alert("Please choose valid option ");
+		return;
+
+	}else {//otherwise Make sure it is hidden (if previously selected SM)
         document.getElementById("generateCode").style.visibility = "hidden";
 		document.getElementById("textarea2").style.visibility = "visible";
         document.getElementById("roomCodeDisplay").innerHTML = "Room Code:";
-    }
+	}
 		const data = {name, type};
 		const options = {
 				method: 'POST',
