@@ -2,13 +2,19 @@
 <html>
 <body>
 <p> hello</p>
+<button onclick='clickedButton()'> Click me</button>
 	<script src="/socket.io/socket.io.js"></script>
 	<script>
 		const socket = io.connect('http://localhost:3000/connectionTest');
-		socket.on('news', (data) => {
-            console.log(data);
-            socket.emit('my other event', {my: 'data'});
-        });
 	</script>
 </body>
 </html>
+<script>
+	function clickedButton(){
+	var data = {
+		action: 'button Clicked'
+	};
+	socket.emit('clicked', data);
+	console.log('sent data');
+	}
+</script>
