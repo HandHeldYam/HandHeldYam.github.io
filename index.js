@@ -17,10 +17,12 @@ io.sockets.on('connection', onConnect);
 function onConnect(socket) {
     console.log('new connection' + socket.id);
     participants.push(socket.id);
+    
 }
-io.on('clicked', (data) => {
+io.on('clicked',clickedButton);
+function clickedButton(data) {
     console.log(data);
-});
+}
 app.post('/UserApi', (request, response) => {
     console.log("request recieved");
     console.log(request.body);
