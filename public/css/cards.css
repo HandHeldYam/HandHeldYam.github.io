@@ -1,3 +1,4 @@
+
 * {
   box-sizing: border-box;
 }
@@ -32,7 +33,7 @@ body {
   }
 }
 
-/* Style the counter cards, set background color to teal */
+/* Style the counter cards, set background color to asf teal */
 .card {
   display: inline-block;
     width: 3.3em;
@@ -54,4 +55,15 @@ body {
 }
 .card:hover {
   bottom: 1em;
+}
+
+.card.hearts {
+    color: black;
+}
+
+.card .rank,
+ .card .suit {
+    display: block;
+    line-height: 1;
+    text-align: left;
 }
