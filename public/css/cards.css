@@ -1,11 +1,15 @@
 
 * {
   box-sizing: border-box;
+
 }
 
 body {
   font-family: Arial, Helvetica, sans-serif;
+  color: black;
 }
+
+
 
 .column {
   float: left;
@@ -28,7 +32,8 @@ body {
   .column {
     width: 100%;
     display: block;
-    margin-bottom: 20px;
+    margin-bottom: 100px;
+    color:black;
 
   }
 }
@@ -48,8 +53,6 @@ body {
     font-family: Arial, sans-serif;
     position: relative;
     background-color: #008080;
-    -moz-box-shadow: .2em .2em .5em #333;
-    -webkit-box-shadow: .2em .2em .5em #333;
     box-shadow: .2em .2em .5em #333;
 
 }
