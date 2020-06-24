@@ -5,7 +5,10 @@
 <button onclick='clickedButton()'> Click me</button>
 	<script src="/socket.io/socket.io.js"></script>
 	<script>
-		const socket = io.connect('http://localhost:3000/connectionTest');
+		var socket = io.connect('http://localhost:3000/connectionTest');
+		socket.on('connection', function (){
+			console.log('client connected:' + socket.id);
+		})
 	</script>
 </body>
 </html>
