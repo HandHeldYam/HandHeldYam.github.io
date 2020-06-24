@@ -67,3 +67,29 @@ body {
     line-height: 1;
     text-align: left;
 }
+.card .suit {
+    line-height: .7;
+}
+
+/* heart rankings */
+.card.rank-1.hearts .suit:after {
+    content: "\A";
+}
+.card.rank-2.hearts .suit:after {
+    content: "\A";
+}
+.card.rank-3.hearts .suit:after {
+    content: "\A";
+}
+.card.rank-5.hearts .suit:after {
+    content: "\A";
+}
+.card.rank-8.hearts .suit:after {
+    content: "\A";
+}
+.card.rank-13.hearts .suit:after {
+    content: "\A";
+}
+.card.rank-21.hearts .suit:after {
+    content: "\A";
+}
