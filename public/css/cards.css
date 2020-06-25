@@ -38,61 +38,31 @@ body {
   }
 }
 
-/* Style the counter cards, set background color to asf teal */
+/* Style the counter cards, set background image to asf watermark */
 .card {
   display: inline-block;
-    width: 3.3em;
-    height: 4.6em;
+    width: 378px;
+    height: 516px;
     border: 1px solid #666;
     border-radius: .3em;
     padding: .25em;
-    margin: 0 .5em .5em 0;
+    margin: 1 1em 1em 1;
     text-align: center;
     font-size: 30px;
     font-weight: normal;
     font-family: Arial, sans-serif;
     position: relative;
-    background-color: #008080;
     box-shadow: .2em .2em .5em #333;
+  
 
 }
 .card:hover {
   bottom: 1em;
 }
 
-.card.hearts {
-    color: black;
-}
 
-.card .rank,
- .card .suit {
+.card .rank {
     display: block;
     line-height: 1;
-    text-align: left;
-}
-.card .suit {
-    line-height: .7;
-}
-
-/* heart rankings */
-.card.rank-1.hearts .suit:after {
-    content: "\A";
-}
-.card.rank-2.hearts .suit:after {
-    content: "\A";
-}
-.card.rank-3.hearts .suit:after {
-    content: "\A";
-}
-.card.rank-5.hearts .suit:after {
-    content: "\A";
-}
-.card.rank-8.hearts .suit:after {
-    content: "\A";
-}
-.card.rank-13.hearts .suit:after {
-    content: "\A";
-}
-.card.rank-21.hearts .suit:after {
-    content: "\A";
+    text-align: middle;
 }
