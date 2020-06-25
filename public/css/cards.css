@@ -53,7 +53,8 @@ body {
     font-family: Arial, sans-serif;
     position: relative;
     box-shadow: .2em .2em .5em #333;
-  
+    background-image:url(asf_card.png);
+
 
 }
 .card:hover {
