@@ -13,8 +13,8 @@ body {
 /* Style the counter cards, set background image to asf watermark */
 .card {
   display: inline-block;
-    width: 378px;
-    height: 516px;
+    width: 200px;
+    height: 300px;
     border: 1px solid #666;
     border-radius: .3em;
     padding: .25em;
