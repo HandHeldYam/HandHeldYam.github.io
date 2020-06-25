@@ -3,21 +3,18 @@
 <body>
 <p> hello</p>
 <button onclick='clickedButton()'> Click me</button>
-	<script src="/socket.io/socket.io.js"></script>
-	<script>
-		var socket = io.connect('http://localhost:3000/connectionTest');
-		socket.on('connection', function (){
-			console.log('client connected:' + socket.id);
-		})
-	</script>
+
 </body>
 </html>
+<script src="/socket.io/socket.io.js"></script>
 <script>
+	var socket = io('http://localhost:3000/connectionTest');
 	function clickedButton(){
 	var data = {
-		action: 'button Clicked'
+		action: 'button Clicked',
+		name: socket.id
 	};
-	socket.emit('clicked', data);
+	socket.emit('newClient', data);
 	console.log('sent data');
 	}
 </script>
