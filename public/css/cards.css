@@ -4,27 +4,26 @@
 
 }
 
-body {
-  font-family: sans-serif;
-  color: black;
-  font-size: 30px;
-  margin-top: 20px;
+.body {
+  font-style: oblique;
+  font-family: inherit;
 }
 
 
 /* Style the counter cards, set background image to asf watermark */
 .card {
-  display: inline-block;
+  display:inline-block;
     width: 200px;
     height: 300px;
+    color: black;
     border: 1px solid #666;
     border-radius: .3em;
     padding: .25em;
     margin: 1 1em 1em 1;
-    text-align: center;
-    font-size: 50px;
+    font-size: 75px;
     font-weight: normal;
-    font-family: Arial, sans-serif;
+    text-decoration: none;
+    font-family:inherit;
     position: relative;
     box-shadow: .2em .2em .5em #333;
     background-image:url("asf_card.png");
@@ -32,12 +31,13 @@ body {
 
 }
 .card:hover {
-  bottom: 1em;
+  bottom: .5em;
 }
 
 
 .card .rank {
     display:block;
-    line-height: 1;
-    text-align: center;
+    line-height: 3;
+    text-align:center;
+
 }
