@@ -1,14 +1,35 @@
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
-const connectDB = require('./config/db');
 
+// Import npm packages
+const mongoose = require('mongoose');
+
+//Connect to database
+const uri = "mongodb+srv://nicolefitz:nicolefitz@cluster0-inygt.mongodb.net/users?retryWrites=true&w=majority";
+mongoose.connect(uri, {
+	useNewUrlParser: true,
+	useUnifiedTopology: true
+});
+
+mongoose.connection.on('connected', () => {
+	console.log('Mongoose is connected!!!!');
+});
+
+//Schema for user data
+const Schema = mongoose.Schema;
+const clientDataSchema = new Schema({
+    name: String,
+    type: String
+});
+
+//Model
+const clientDataModel = mongoose.model('clientData', clientDataSchema);
 
 var socket = require('socket.io');
 var io = socket(server);
 
 const dirName = 'HandHeldYam.github.io/';
-connectDB();
 server.listen(3000, () => console.log('Listening on Port 3000'));
 app.use(express.static('public'));//uses files in the "public" folder
 app.use(express.json({ limit: '1mb' }));
@@ -36,7 +57,14 @@ function Client(id, name, type) {
 
 app.post('/UserApi', (request, response) => {
     console.log("request recieved");
-    console.log(request.body);
+    const data = request.body;
+    console.log(data);
+    //Add client to database
+    clientDataModel.collection.insertOne({data}, function(err){
+        if (err) return handleError(err);
+        console.log("User successfully added to Database");
+    });
+
     console.log("USer added to list");//no users actually added
 });
 app.post('/api', (request, response) => {
