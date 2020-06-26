@@ -8,12 +8,12 @@ const mongoose = require('mongoose');
 //Connect to database
 const uri = "mongodb+srv://nicolefitz:nicolefitz@cluster0-inygt.mongodb.net/users?retryWrites=true&w=majority";
 mongoose.connect(uri, {
-	useNewUrlParser: true,
-	useUnifiedTopology: true
+    useNewUrlParser: true,
+    useUnifiedTopology: true
 });
 
 mongoose.connection.on('connected', () => {
-	console.log('Mongoose is connected!!!!');
+    console.log('Mongoose is connected!!!!');
 });
 
 //Schema for user data
@@ -78,15 +78,22 @@ app.post('/UserApi', (request, response) => {
     const data = request.body;
     console.log(data);
     //Add client to database
-    clientDataModel.collection.insertOne({data}, function(err){
+    clientDataModel.collection.insertOne({ data }, function (err) {
         if (err) return handleError(err);
         console.log("User successfully added to Database");
     });
 
     console.log("USer added to list");//no users actually added
 });
+
+//generates room code
 app.post('/api', (request, response) => {
     console.log("request recieved");
     console.log(request.body);
+});
 
+//room code that users put in (not SM)
+app.post('/roomCodeApi', (request, response) => {
+    console.log("request recieved");
+    console.log(request.body);
 });

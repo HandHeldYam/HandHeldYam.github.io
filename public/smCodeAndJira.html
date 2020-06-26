@@ -1,0 +1,64 @@
+<html>
+
+<head>
+    <title>ASF Virtual App</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="css/main.css" />
+</head>
+
+<body class="is-preload">
+    <!--Heading-->
+    <header id="header">
+        <h2>Please provide this code to your team: </h2>
+    </header>
+
+    <div id="roomCodeDisplay"></div>
+
+    <div>Eventually integrate with Jira</div>
+    <!-- Footer -->
+    <footer id="footer">
+        <ul class="copyright">
+            <li>&copy; CACI.</li>
+            <li>Credits:HTML5 UP</a></li>
+        </ul>
+    </footer>
+</body>
+
+</html>
+
+<script>
+    (function generateCode() {
+        var code = "";
+        for (var i = 0; i < 7; i++) {
+            code += " " + parseInt(Math.random() * 10);
+        }
+        document.getElementById('roomCodeDisplay').innerHTML = code;
+
+        //associate code with sm maybe?
+        const data = { code };
+        const options = {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        };
+        fetch('/api', options);
+    })();
+</script>
+
+<style>
+    #header {
+        top: 20%;
+        position: absolute;
+    }
+
+    #roomCodeDisplay {
+        top: 20.5%;
+        left: 40%;
+        position: absolute;
+        font-size: 3.5vw;
+        color: white;
+    }
+</style>

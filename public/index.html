@@ -1,125 +1,110 @@
 <html>
-	<head>
-		<title>ASF Virtual App</title>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<link rel="stylesheet" href="css/main.css" />
-	</head>
-	<body class="is-preload">
-		<!--Heading-->
-			<header id="header">
-				<h3>LOGIN</h3>
-				<p>Planning Poker. Real time Estimations. Virtual Scrums. All your ASF resources in one platform.</a>.</p>
-			</header>
 
-		<!-- LOGIN SCREEN-->
-		<div id="div1">
-				<p id="userNameDisplay">Username: </p>
-				<p id="roomCodeDisplay">Room Code:</p>
-		</div>
-		<div id="div2">
-				<h3 for="positions">What is your Role?</h3>
-				<select name="positions" id="positions" required>
-						<option value="badOption"> Choose Here </option>
-						<option id="SMButton" value = "Scrum Master">Scrum Master</option>
-						<option value = "Product Team">Product Team</option>
-						<option value = "Member">Member</option>
-						<option value = "BA/PO">BA/PO</option>
-						<option value = "Guest">Guest</option>
-				</select>
-				<input id="textarea1" type=text>
-				<button id="submit" onclick='submitButton()'>Submit</button>
-				<button id="generateCode" onclick='generateCode()' style="visibility:hidden">Create Room</button>
-				<h3> Trying to join an existing scrum session? Enter code here: </h3>
-				<input id="textarea2" type=text maxlength="7">
-				<button id="submit2" onclick='submitButton2()'>Submit</button>
+<head>
+	<title>ASF Virtual App</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<link rel="stylesheet" href="css/main.css" />
+</head>
 
+<body class="is-preload">
+	<!--Heading-->
+	<header id="header">
+		<h1>LOGIN to Planning Poker Session</h1>
+	</header>
 
+	<!-- LOGIN SCREEN-->
+<!-- 	<div class="div1">
+		<p id="userNameDisplay">Username: </p>
+		<p id="roomCodeDisplay">Room Code:</p>
+	</div> -->
+	<div id="div2">
+		<h3 for="positions">What is your Role?</h3>
+		<select name="positions" id="positions" required>
+			<option value="badOption"> Choose your Role </option>
+			<option id="SMButton" value="Scrum Master" onclick='generateCode()'>Scrum Master</option>
+			<option value="Product Team">Product Team</option>
+			<option value="Member">Member</option>
+			<option value="BA/PO">BA/PO</option>
+			<option value="Guest">Guest</option>
+		</select>
+		<input id="textarea1" type=text>
+		<button id="submit" onclick='submitButton()'>Submit</button>
+		<button id="generateCode" onclick='generateCode()' style="visibility:hidden">Create Room</button>
+		<h3 id = "existingSession" style="visibility:hidden"> Joining an existing scrum session? Enter code here: </h3>
+		<input id="textarea2" type=text maxlength="7" style="visibility:hidden">
+		<button id="submit2" onclick='submitButton2()' style="visibility:hidden">Submit</button>
+	</div>
 
-		</div>
+	<!-- Footer -->
+	<footer id="footer">
+		<ul class="copyright">
+			<li>&copy; CACI.</li>
+			<li>Credits:HTML5 UP</a></li>
+		</ul>
+	</footer>
 
-		<!-- Footer -->
-			<footer id="footer">
-				<ul class="copyright">
-					<li>&copy; CACI.</li><li>Credits:HTML5 UP</a></li>
-				</ul>
-			</footer>
-
-		<!-- Scripts -->
-		<script src="js/main.js"></script>
+	<!-- Scripts -->
+	<script src="js/main.js"></script>
 	<script>
-	function showGenerateCode(){
-		document.getElementById("generateCode").style.visibility = "visible";
-	}
-	function submitButton(){
+		function submitButton() {
 
-    var dDM = document.getElementById("positions"); // gets the dropdown menu from DOM
-    var type = dDM.options[dDM.selectedIndex].text //gets selected item from dropDownMenu
-    var name = document.getElementById("textarea1").value; //gets input from textbox
-    if(name == ""){
-        alert("Must Enter Name Before Sumbission");//make alert when <input> has no vlaue
-        return;
-    }
-    document.getElementById('userNameDisplay').innerHTML = "Username: " + name;
+			var dDM = document.getElementById("positions"); // gets the dropdown menu from DOM
+			var type = dDM.options[dDM.selectedIndex].text //gets selected item from dropDownMenu
+			var name = document.getElementById("textarea1").value; //gets input from textbox
+			if (name == "") {
+				alert("Must Enter Name Before Sumbission");//make alert when <input> has no vlaue
+				return;
+			}
 
-    if(type == "Scrum Master"){ //if ScrumMaster is selected reveal generateCode Button
-        showGenerateCode();
-		document.getElementById("textarea2").style.visibility = "hidden";
-    } else if(type == "Choose Here"){
-		alert("Please choose valid option ");
-		return;
+			if (type == "Choose your Role") {
+				alert("Please choose valid option ");
+				return;
+			}
+			if (type == "Scrum Master") { //if ScrumMaster is selected reveal generateCode Button
+				window.location.href = "smCodeAndJira.html";
+			}else{
+				document.getElementById("existingSession").style.visibility = "visible";
+				document.getElementById("textarea2").style.visibility = "visible";
+				document.getElementById("submit2").style.visibility = "visible";
+			}
 
-	}else {//otherwise Make sure it is hidden (if previously selected SM)
-        document.getElementById("generateCode").style.visibility = "hidden";
-		document.getElementById("textarea2").style.visibility = "visible";
-        document.getElementById("roomCodeDisplay").innerHTML = "Room Code:";
-	}
-		const data = {name, type};
-		const options = {
+			//document.getElementById("submit").disabled = 'true';
+			const data = { name, type };
+			const options = {
 				method: 'POST',
 				headers: {
-						"Content-Type": "application/json"
+					"Content-Type": "application/json"
 				},
 				body: JSON.stringify(data)
-		};
-		fetch('/UserApi', options);
- }
- function submitButton2(){
-	 var roomCode = document.getElementById("textarea2").value;
-	 if(roomCode == ""){
-		 alert("Must enter 7-Digit room code");
-		 return;
-	 }
-	 const data = {roomCode};
-	 const options = {
-		 method:'POST',
-		 headers: {
-			 "Content-Type": "application/json"
-		 },
-		 body: JSON.stringify(data)
-	 }
-	 fetch('/roomCodeApi', options);
-	 window.location.href = "http://localhost:3000/connectionTest.html";
- }
+			};
+			fetch('/UserApi', options);
+		}
+		function submitButton2() {
+			var roomCode = document.getElementById("textarea2").value;
+			if (roomCode == "") {
+				alert("Must enter 7-Digit room code");
+				return;
+			}
+			const data = { roomCode };
+			const options = {
+				method: 'POST',
+				headers: {
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify(data)
+			}
+			fetch('/roomCodeApi', options);
+			window.location.href = "connectionTest.html";
+		}
+	</script>
+	<style>
+		.div1 {
+			top: 10%;
+			right: 15%;
+			position: absolute;
+		}
+	</style>
+</body>
 
- function generateCode(){
-     var code = "";
-        for(var i = 0; i< 7;i++){
-            code += " " + parseInt(Math.random()*10);
-        }
-	 document.getElementById('roomCodeDisplay').innerHTML = "Room Code:" + code;
-	 const data = { code };
-				const options = {
-			 		 method: 'POST',
-			 		 headers:{
-			 				 "Content-Type": "application/json"
-			 		 },
-			 		 body: JSON.stringify(data)
-			  };
-			  fetch('/api', options);
-			 }
-
-			</script>
-
-	</body>
 </html>
