@@ -14,7 +14,7 @@
 		action: 'button Clicked',
 		name: socket.id
 	};
-	socket.emit('newClient', data);
+	socket.emit('newClient', data, console.log('sent'));
 	console.log('sent data');
 	}
 </script>
