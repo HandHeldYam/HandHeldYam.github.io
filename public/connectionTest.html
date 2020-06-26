@@ -8,13 +8,12 @@
 </html>
 <script src="/socket.io/socket.io.js"></script>
 <script>
-	var socket = io('http://localhost:3000/connectionTest');
+	var socket = io();
 	function clickedButton(){
 	var data = {
 		action: 'button Clicked',
 		name: socket.id
 	};
-	socket.emit('newClient', data, console.log('sent'));
-	console.log('sent data');
+	socket.emit('newClient', data, console.log('sent data'));
 	}
 </script>

@@ -26,8 +26,8 @@ const clientDataSchema = new Schema({
 //Model
 const clientDataModel = mongoose.model('clientData', clientDataSchema);
 
-var socket = require('socket.io');
-var io = socket(server);
+var socket1 = require('socket.io');
+var io = socket1(server);
 
 const dirName = 'HandHeldYam.github.io/';
 server.listen(3000, () => console.log('Listening on Port 3000'));
@@ -57,12 +57,12 @@ function onConnect(socket) {
     console.log('new connection' + socket.id);
     c = new Client(socket.id, "temp", "get from json");
     clients.push(Client);
-    console.log(clients);
-    
+    console.log("connected to client");
+    socket.on("newClient", function handleClient(data) {
+    console.log("new Client connected to server");
+    });
 }
-io.sockets.on("newClient", function handleClient(data) {
-    console.log("new Client connected");
-});
+
 
 class Client{
     constructor(id, name, type) {
