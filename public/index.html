@@ -32,7 +32,7 @@
 		<button id="submit" onclick='submitButton()'>Submit</button>
 		<button id="generateCode" onclick='generateCode()' style="visibility:hidden">Create Room</button>
 		<h3 id = "existingSession" style="visibility:hidden"> Joining an existing scrum session? Enter code here: </h3>
-		<input id="textarea2" type=text maxlength="7" style="visibility:hidden">
+		<input id="textarea2" type=text maxlength="4" style="visibility:hidden">
 		<button id="submit2" onclick='submitButton2()' style="visibility:hidden">Submit</button>
 	</div>
 
@@ -46,6 +46,7 @@
 
 	<!-- Scripts -->
 	<script src="js/main.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
 	<script>
 		function submitButton() {
 
@@ -80,13 +81,14 @@
 			};
 			fetch('/UserApi', options);
 		}
-		function submitButton2() {
-			var roomCode = document.getElementById("textarea2").value;
-			if (roomCode == "") {
-				alert("Must enter 7-Digit room code");
+		function submitButton2() { //plan to add name and type as parameters
+			var code = document.getElementById("textarea2").value;
+			code = code.toString();
+			if (code == "") {
+				alert("Must enter 4-Digit room code");
 				return;
 			}
-			const data = { roomCode };
+			const data = { code };
 			const options = {
 				method: 'POST',
 				headers: {
@@ -95,7 +97,7 @@
 				body: JSON.stringify(data)
 			}
 			fetch('/roomCodeApi', options);
-			window.location.href = "connectionTest.html";
+			//window.location.href = "connectionTest.html";
 		}
 	</script>
 	<style>

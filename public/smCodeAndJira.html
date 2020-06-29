@@ -30,11 +30,11 @@
 <script>
     (function generateCode() {
         var code = "";
-        for (var i = 0; i < 7; i++) {
-            code += " " + parseInt(Math.random() * 10);
+        for (var i = 0; i < 4; i++) {
+            code += parseInt(Math.random() * 10);
         }
         document.getElementById('roomCodeDisplay').innerHTML = code;
-
+        code = code.toString();
         //associate code with sm maybe?
         const data = { code };
         const options = {
@@ -44,7 +44,7 @@
             },
             body: JSON.stringify(data)
         };
-        fetch('/api', options);
+        fetch('/ScrumMaster', options);
     })();
 </script>
 

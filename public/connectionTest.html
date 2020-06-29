@@ -9,11 +9,6 @@
 <script src="/socket.io/socket.io.js"></script>
 <script>
 	var socket = io();
-	function clickedButton(){
-	var data = {
-		action: 'button Clicked',
-		name: socket.id
-	};
 	socket.emit('newClient', data, console.log('sent data'));
-	}
+	 
 </script>

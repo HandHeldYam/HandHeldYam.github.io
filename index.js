@@ -1,7 +1,8 @@
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
-
+app.use(express.static('public'));//listens to files in the "public" folder
+app.use(express.json({ limit: '1mb' }));
 // Import npm packages
 const mongoose = require('mongoose');
 
@@ -29,27 +30,14 @@ const clientDataModel = mongoose.model('clientData', clientDataSchema);
 var socket1 = require('socket.io');
 var io = socket1(server);
 
-const dirName = 'HandHeldYam.github.io/';
+const dirName = 'HandHeldYam.github.io/public/';
 server.listen(3000, () => console.log('Listening on Port 3000'));
-app.use(express.static('public'));//listens to files in the "public" folder
-app.use(express.json({ limit: '1mb' }));
 var clients = [];
+var validRoomCodes = [];
+
+
 app.get('/', (req, res) => {
     res.send('mainMenu.html', { root: "public/mainMenu.html" })
-});
-app.post('/UserApi', (request, response) => {
-    console.log("request recieved");
-    console.log(request.body);
-    console.log("USer added to list");//no users actually added
-});
-app.post('/api', (request, response) => {
-    console.log("request recieved");
-    console.log(request.body);
-
-});
-app.post('/roomCodeApi', (request, response) => {
-    console.log("request recieved");
-    console.log(request.body);
 });
 
 io.sockets.on('connection', onConnect);
@@ -58,11 +46,17 @@ function onConnect(socket) {
     c = new Client(socket.id, "temp", "get from json");
     clients.push(Client);
     console.log("connected to client");
-    socket.on("newClient", function handleClient(data) {
-    console.log("new Client connected to server");
-    });
+
+    socket.on("newClient", handleClient);
+    socket.on("disconnect", onDisconnect);
 }
 
+function handleClient(data) {
+    console.log('Client connecting with code: ' + data.roomCode);
+}
+function onDisconnect(socket) {
+    console.log(socket.id + ' Attempting to disconnect');
+}
 
 class Client{
     constructor(id, name, type) {
@@ -86,14 +80,20 @@ app.post('/UserApi', (request, response) => {
     console.log("USer added to list");//no users actually added
 });
 
-//generates room code
-app.post('/api', (request, response) => {
-    console.log("request recieved");
-    console.log(request.body);
-});
-
 //room code that users put in (not SM)
 app.post('/roomCodeApi', (request, response) => {
-    console.log("request recieved");
+    console.log("Non SM roomcode recieved");
     console.log(request.body);
+    validRoomCodes.forEach((item) => {
+        console.log(item);
+        if (item === request.body.code) {
+            response.sendFile('/public/connectionTest.html', {root:__dirname});
+        } else {
+            console.log('code doesnt match');
+        }
+    })
 });
+app.post('/ScrumMaster', (req, res) => {
+    validRoomCodes.push(req.body.code);
+    console.log(validRoomCodes);
+})
