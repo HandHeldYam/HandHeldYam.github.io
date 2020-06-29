@@ -87,7 +87,9 @@ app.post('/roomCodeApi', (request, response) => {
     validRoomCodes.forEach((item) => {
         console.log(item);
         if (item === request.body.code) {
-            response.sendFile('/public/connectionTest.html', {root:__dirname});
+            response.sendFile('/public/connectionTest.html', { root: __dirname }, ()=>{
+                console.log('sent to ' + __dirname + '/public/connectionTest.html');
+            });
         } else {
             console.log('code doesnt match');
         }
