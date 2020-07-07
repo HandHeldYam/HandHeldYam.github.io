@@ -1,8 +1,19 @@
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
-app.use(express.static('public'));//listens to files in the "public" folder
+app.use(express.static('public'));//listens to files in the
+console.log(__dirname);
+//"public" folder
+//app.use('public', express.static(__dirname));
 app.use(express.json({ limit: '1mb' }));
+
+var socket1 = require('socket.io');
+var io = socket1(server);
+
+var clients = [];
+var validRoomCodes = [];
+server.listen(3000, () => console.log('Listening on Port 3000'));
+
 // Import npm packages
 const mongoose = require('mongoose');
 
@@ -27,17 +38,30 @@ const clientDataSchema = new Schema({
 //Model
 const clientDataModel = mongoose.model('clientData', clientDataSchema);
 
-var socket1 = require('socket.io');
-var io = socket1(server);
 
-const dirName = 'HandHeldYam.github.io/public/';
-server.listen(3000, () => console.log('Listening on Port 3000'));
-var clients = [];
-var validRoomCodes = [];
+
 
 
 app.get('/', (req, res) => {
-    res.send('mainMenu.html', { root: "public/mainMenu.html" })
+    res.sendFile('mainMenu.html', { root:'./' });
+    console.log('sent to main menu');
+});
+
+app.get('/index', (req, res) => {
+    res.sendFile('index.html', {root: './'});
+});
+app.get('/smCodeAndJira', (req, res) => {
+    res.sendFile('smCodeAndJira.html', {root: './'});
+});
+app.get('/connectionTest', (req, res) => {
+    res.sendFile('connectionTest.html', {root: './'});
+});
+app.post('/roomCodeApi', (req, res) => {
+    console.log(req.body);
+    if (onCorrectRoomCode(req.body.code)) {
+        res.sendFile(__dirname + '/connectionTest.html');
+        console.log('sending to page');
+    }
 });
 
 io.sockets.on('connection', onConnect);
@@ -81,20 +105,16 @@ app.post('/UserApi', (request, response) => {
 });
 
 //room code that users put in (not SM)
-app.post('/roomCodeApi', (request, response) => {
-    console.log("Non SM roomcode recieved");
-    console.log(request.body);
-    validRoomCodes.forEach((item) => {
-        console.log(item);
-        if (item === request.body.code) {
-            response.sendFile('/public/connectionTest.html', { root: __dirname }, ()=>{
-                console.log('sent to ' + __dirname + '/public/connectionTest.html');
-            });
-        } else {
-            console.log('code doesnt match');
+
+function onCorrectRoomCode(code) {
+    for (var i = 0; i < validRoomCodes.length; i++){
+        if (code === validRoomCodes[i]) {
+            return true;
         }
-    })
-});
+    }
+    return false;
+}
+
 app.post('/ScrumMaster', (req, res) => {
     validRoomCodes.push(req.body.code);
     console.log(validRoomCodes);

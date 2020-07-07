@@ -4,7 +4,7 @@
 	<title>ASF Virtual App</title>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-	<link rel="stylesheet" href="css/main.css" />
+	<link rel="stylesheet" href="/css/main.css" />
 </head>
 
 <body class="is-preload">
@@ -73,7 +73,7 @@
 				body: JSON.stringify(data)
 				};
 				fetch('/UserApi', options);
-				window.location.href = "smCodeAndJira.html";
+				window.location.href = "smCodeAndJira";
 			}else{
 				document.getElementById("existingSession").style.visibility = "visible";
 				document.getElementById("textarea2").style.visibility = "visible";

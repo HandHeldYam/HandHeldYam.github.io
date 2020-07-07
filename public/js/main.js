@@ -103,36 +103,36 @@
 	})();
 
 	// Login function
-	(function () {
+	// (function () {
 
-		$form.addEventListener('submit', function (event) {
+	// 	$form.addEventListener('submit', function (event) {
 
-			event.stopPropagation();
-			event.preventDefault();
+	// 		event.stopPropagation();
+	// 		event.preventDefault();
 
-			// Hide message.
-			$message._hide();
+	// 		// Hide message.
+	// 		$message._hide();
 
-			// Disable submit.
-			$submit.disabled = true;
+	// 		// Disable submit.
+	// 		$submit.disabled = true;
 
 
-			window.setTimeout(function () {
+	// 		window.setTimeout(function () {
 
-				// Reset form.
-				$form.reset();
+	// 			// Reset form.
+	// 			$form.reset();
 
-				// Enable submit.
-				$submit.disabled = false;
+	// 			// Enable submit.
+	// 			$submit.disabled = false;
 
-				// Show message.
-				$message._show('success', 'Logging you in to Scrum Session');
-				//$message._show('Authentication failed. Please try again.');
+	// 			// Show message.
+	// 			$message._show('success', 'Logging you in to Scrum Session');
+	// 			//$message._show('Authentication failed. Please try again.');
 
-			}, 750);
+	// 		}, 750);
 
-		});
+	// 	});
 
-	})();
+	// })();
 
 })();
