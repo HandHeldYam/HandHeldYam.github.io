@@ -68,6 +68,9 @@ app.get('/planningPokerScreen', (req, res) => {
     }
 );
 
+app.get('/underConstruction', (req, res) => {
+    res.sendFile('underConstruction.html', { root: './' });
+})
 io.sockets.on('connection', onConnect);
 function onConnect(socket) {
     console.log('new connection' + socket.id);
