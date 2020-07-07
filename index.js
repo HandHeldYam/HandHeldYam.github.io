@@ -63,6 +63,10 @@ app.post('/roomCodeApi', (req, res) => {
         console.log('sending to page');
     }
 });
+app.get('/planningPokerScreen', (req, res) => {
+    res.sendFile('planningPokerScreen.html', {root: './'});
+    }
+);
 
 io.sockets.on('connection', onConnect);
 function onConnect(socket) {
