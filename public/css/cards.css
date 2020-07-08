@@ -1,18 +1,7 @@
 
-* {
-  box-sizing: border-box;
-
-}
-
-.body {
-  font-style: oblique;
-  font-family: inherit;
-}
-
 
 /* Style the counter cards, set background image to asf watermark */
 .card {
-  display:inline-block;
     width: 200px;
     height: 300px;
     color: black;
@@ -22,9 +11,8 @@
     margin: 1 1em 1em 1;
     font-size: 75px;
     font-weight: normal;
-    text-decoration: none;
-    font-family:inherit;
-    position: relative;
+    text-decoration:none;
+    font-family:fantasy;
     box-shadow: .2em .2em .5em #333;
     background-image:url("asf_card.png");
 
@@ -39,5 +27,6 @@
     display:block;
     line-height: 3;
     text-align:center;
+
 
 }
