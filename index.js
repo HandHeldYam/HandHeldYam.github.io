@@ -38,18 +38,21 @@ const clientDataSchema = new Schema({
 //Model
 const clientDataModel = mongoose.model('clientData', clientDataSchema);
 
+//specifying URL path of router.js
+
+var rout = require('./router.js');
+app.use('/router', router);
 
 
 
+//app.get('/', (req, res) => {
+//    res.sendFile('mainMenu.html', { root:'./' });
+//    console.log('sent to main menu');
+//});
 
-app.get('/', (req, res) => {
-    res.sendFile('mainMenu.html', { root:'./' });
-    console.log('sent to main menu');
-});
-
-app.get('/index', (req, res) => {
-    res.sendFile('index.html', {root: './'});
-});
+//app.get('/index', (req, res) => {
+//    res.sendFile('index.html', {root: './'});
+//});
 app.get('/smCodeAndJira', (req, res) => {
     res.sendFile('smCodeAndJira.html', {root: './'});
 });
