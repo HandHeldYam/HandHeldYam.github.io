@@ -54,10 +54,10 @@ app.get('/', (req, res) => {
 });
 
 app.get('/index', (req, res) => {
-   res.sendFile('index.html',{root: './'});
+   res.sendFile('login.html',{root: './'});
 });
 app.get('/smCodeAndJira', (req, res) => {
-    res.sendFile('smCodeAndJira.html', {root: './'});
+    res.sendFile('lobby.html', {root: './'});
 });
 app.get('/connectionTest', (req, res) => {
     res.sendFile('connectionTest.html', {root: './'});
