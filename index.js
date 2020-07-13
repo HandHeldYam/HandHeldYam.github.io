@@ -2,6 +2,10 @@ const express = require('express');
 const app = express();
 const server = require('http').Server(app);
 app.use(express.static('public'));//listens to files in the
+const path = require('path');
+var router = require('./router.js');
+//app.use('./router', router);
+
 console.log(__dirname);
 //"public" folder
 //app.use('public', express.static(__dirname));
@@ -40,39 +44,39 @@ const clientDataModel = mongoose.model('clientData', clientDataSchema);
 
 //specifying URL path of router.js
 
-var rout = require('./router.js');
-app.use('/router', router);
 
 
 
-//app.get('/', (req, res) => {
-//    res.sendFile('mainMenu.html', { root:'./' });
-//    console.log('sent to main menu');
-//});
 
-//app.get('/index', (req, res) => {
-//   res.sendFile('index.html', {root: './'});
-//app.get('/smCodeAndJira', (req, res) => {
-//   res.sendFile('smCodeAndJira.html', {root: './'});
-//});
-//app.get('/connectionTest', (req, res) => {
-//    res.sendFile('connectionTest.html', {root: './'});
-//});
-//app.post('/roomCodeApi', (req, res) => {
-//    console.log(req.body);
-//    if (onCorrectRoomCode(req.body.code)) {
-//        res.sendFile(__dirname + '/connectionTest.html');
-//        console.log('sending to page');
-//    }
-//});
-//app.get('/planningPokerScreen', (req, res) => {
-//    res.sendFile('planningPokerScreen.html', {root: './'});
-//    }
-//);
+app.get('/', (req, res) => {
+   res.sendFile('mainMenu.html', { root:'./' });
+   console.log('sent to main menu');
+});
 
-//app.get('/underConstruction', (req, res) => {
-//    res.sendFile('underConstruction.html', { root: './' });
-//})
+app.get('/index', (req, res) => {
+   res.sendFile('index.html',{root: './'});
+});
+app.get('/smCodeAndJira', (req, res) => {
+    res.sendFile('smCodeAndJira.html', {root: './'});
+});
+app.get('/connectionTest', (req, res) => {
+    res.sendFile('connectionTest.html', {root: './'});
+});
+app.post('/roomCodeApi', (req, res) => {
+    console.log('hit post request');
+    console.log(req.body);
+    if (onCorrectRoomCode(req.body.code)) {
+        res.sendStatus(201);
+    }
+});
+app.get('/planningPokerScreen', (req, res) => {
+    res.sendFile('planningPokerScreen.html', {root: './'});
+    }
+);
+
+app.get('/underConstruction', (req, res) => {
+    res.sendFile('underConstruction.html', { root: './' });
+})
 io.sockets.on('connection', onConnect);
 function onConnect(socket) {
     console.log('new connection' + socket.id);
@@ -100,18 +104,18 @@ class Client{
 
 }
 
-//app.post('/UserApi', (request, response) => {
-//    console.log("request recieved");
-//    const data = request.body;
-//    console.log(data);
+app.post('/UserApi', (request, response) => {
+   console.log("request recieved");
+   const data = request.body;
+   console.log(data);
     //Add client to database
-//    clientDataModel.collection.insertOne({ data }, function (err) {
-//        if (err) return handleError(err);
-//        console.log("User successfully added to Database");
-//    });
+   clientDataModel.collection.insertOne({ data }, function (err) {
+       if (err) return handleError(err);
+       console.log("User successfully added to Database");
+   });
 
-//    console.log("USer added to list");//no users actually added
-//});
+   console.log("USer added to list");//no users actually added
+});
 
 //room code that users put in (not SM)
 
@@ -124,7 +128,7 @@ function onCorrectRoomCode(code) {
     return false;
 }
 
-//app.post('/ScrumMaster', (req, res) => {
-//    validRoomCodes.push(req.body.code);
-//    console.log(validRoomCodes);
-//})
+app.post('/ScrumMaster', (req, res) => {
+   validRoomCodes.push(req.body.code);
+   console.log(validRoomCodes);
+})

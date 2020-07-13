@@ -73,7 +73,7 @@
 				body: JSON.stringify(data)
 				};
 				fetch('/UserApi', options);
-				window.location.href = "smCodeAndJira";
+				window.location.href = "/smCodeAndJira";
 			}else{
 				document.getElementById("existingSession").style.visibility = "visible";
 				document.getElementById("textarea2").style.visibility = "visible";
@@ -90,16 +90,21 @@
 				alert("Must enter 4-Digit room code");
 				return;
 			}
-			const data = { type, name, code };
-			const options = {
+			const data = {code, name, type};
+			const op = {
 				method: 'POST',
-				headers: {
+				headers:{
 					"Content-Type": "application/json"
 				},
 				body: JSON.stringify(data)
-			}
-			fetch('/roomCodeApi', options);
-			//window.location.href = "connectionTest.html";
+			};
+			fetch('/roomCodeApi', op).then(response =>{
+				console.log(response.status);
+				if(response.status === 201){
+					window.location.href = '/connectionTest';
+				}
+				console.log(isVerified);
+			}, error => console.log(error));
 		}
 	</script>
 	<style>
