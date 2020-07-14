@@ -13,7 +13,7 @@ router.get('/index', function (req, res) {
 });
 
 //smCodeAndJira page Route
-router.get('/smCodeAndJira', function (req, res) {
+router.get('/lobby', function (req, res) {
   res.send('Jira Integration page');
 });
 

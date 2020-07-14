@@ -12,9 +12,13 @@
     <!--Heading-->
     <header id="header">
         <h2>Please provide this code to your team: </h2>
+        <h2 id='roomCodeDisplay'></h2>
+        <button id='codeButton' onclick='generateCode()'>Generate Code</button>
+        <div>
+            <p id='name'>Name: </p>
+            <p id='type'>Type: </p>
+        </div>
     </header>
-
-    <div id="roomCodeDisplay"></div>
 
     <div>Eventually integrate with Jira</div>
     <!-- Footer -->
@@ -27,17 +31,31 @@
 </body>
 
 </html>
-
+<script src="/socket.io/socket.io.js"></script>
 <script>//create a new socket room on each page load
-    (function generateCode() {
+    (function getName() {
+        var name = localStorage.getItem('name');
+        document.getElementById('name').innerHTML = "Name: " + name;
+    })();
+    (function getType(){
+        var type = localStorage.getItem('type');
+        document.getElementById('type').innerHTML = "Type: " + type;
+        if(type === "Scrum Master"){
+            document.getElementById('codeButton').style.visibility = 'visible' ;
+        } else {
+            document.getElementById('codeButton').style.visibility = 'hidden';
+        }
+    })();
+    function generateCode() {
         var code = "";
         for (var i = 0; i < 4; i++) {
             code += parseInt(Math.random() * 10);
         }
         document.getElementById('roomCodeDisplay').innerHTML = code;
         code = code.toString();
+        name = localStorage.getItem('name');
         //associate code with sm maybe?
-        const data = { code };
+        const data = { code, name };
         const options = {
             method: 'POST',
             headers: {
@@ -46,7 +64,16 @@
             body: JSON.stringify(data)
         };
         fetch('/ScrumMaster', options);
-    })();
+    }
+    const io = io();
+    let games = io.connect("http://localhost:3000/lobby");
+    games.emit("joinRoom", code);
+    console.log("hello");
+    
+
+    games.on("err", (err)=> console.log(err));
+    games.on("success", (res) => console.log(res));
+
 </script>
 
 <style>
