@@ -15,7 +15,7 @@ var io = socket1(server);
 
 var clients = [];
 var validRoomCodes = new Map();
-server.listen(3000, () => console.log('Listening on Port 3000'));
+server.listen(8080, () => console.log('Listening on Port 8080'));
 
 // Import npm packages
 const mongoose = require('mongoose');
