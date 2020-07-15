@@ -12,6 +12,9 @@ app.use(express.json({ limit: '1mb' }));
 
 var socket1 = require('socket.io');
 var io = socket1(server);
+const scrumMasterNS = io.of('/SM'); //creating namespace called /SM on the server
+const clientNS = io.of('/client'); //creating namespace called /client on the server
+
 
 var clients = [];
 var validRoomCodes = new Map();
@@ -107,7 +110,14 @@ function onCorrectRoomCode(code) {
 }
 
 
-io.sockets.on('connection', onConnect);
+io.sockets.on('connection', onConnect);//io.sockets = default namespace (/)
+scrumMasterNS.use((socket, next) => {
+    
+    next();
+});
+scrumMasterNS.on('connection', (socket) => {
+    socket.on('joinRoom', code => socket.join(code));
+});
 function onConnect(socket) {
     console.log('new connection' + socket.id);
     console.log("connected to client");
@@ -116,20 +126,23 @@ function onConnect(socket) {
     socket.on('toLobby', toLobby);
     //console.log(clients);
     socket.on("disconnect", onDisconnect);
+    
+    
+    // socket
+    // .of('/lobby') //gets sockets of the lobby namespace
+    // .on("connection", (socket) => { // on connection, (new socket connecting) 
+    //     console.log("connected to lobby namespace : " + socket.id);//log the socket id
+    //     socket.on("joinRoom", (code) => {//on joinRoom event
+    //         if (validRoomCodes.includes(code)) {//check if the validRoomCodes contains code
+    //             socket.join(code);//join the socket to the room with name code
+    //             return socket.emit("success", "Connected to room" + room);//return a success event
+    //         } else {
+    //             return socket.emit("err", "No room named " + room);//if not return a error event
+    //         }
+    //     });
+    // })
 }
-io
-    .of('/lobby')
-    .on("connection", (socket) => {
-        console.log("connected to Lobby namespace : " + socket.id);
-        socket.on("joinRoom", (room) => {
-            if (validRoomCodes.includes(room)) {
-                socket.join(room);
-                return socket.emit("success", "Connected to room" + room);
-            } else {
-                socket.emit("err", "No room named " + room);
-            }
-        });
-    })
+
 
 function handleClient(data) {
     console.log(data.name + ' connecting with code: ' + data.code + " " + data.name + " " + data.type);

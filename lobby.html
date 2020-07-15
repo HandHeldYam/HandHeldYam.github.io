@@ -49,6 +49,7 @@
     (function getCode(){
         var code = localStorage.getItem('code');
         var type = localStorage.getItem('type');
+        console.log('I RAN!');
         if(type !== "Scrum Master"){
             document.getElementById('roomCodeDisplay').innerHTML += code;
         }
@@ -73,15 +74,19 @@
         };
         fetch('/ScrumMaster', options);
     }
-    const io = io();
-    let games = io.connect("http://localhost:3000/lobby");
+
+    (function setUpSocket(){
+
+    
+    const socket = io();
+    let games = io.connect("http://localhost:8080/lobby");
     games.emit("joinRoom", code);
     console.log("hello");
     
 
     games.on("err", (err)=> console.log(err));
     games.on("success", (res) => console.log(res));
-
+    })();
 </script>
 
 <style>
