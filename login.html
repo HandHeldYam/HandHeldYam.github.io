@@ -73,7 +73,9 @@
 				body: JSON.stringify(data)
 				};
 				fetch('/UserApi', options);
-				window.location.href = "/smCodeAndJira";
+				localStorage.setItem('name', name);
+				localStorage.setItem('type', type);
+				window.location.href = "/lobby";
 			}else{
 				document.getElementById("existingSession").style.visibility = "visible";
 				document.getElementById("textarea2").style.visibility = "visible";
@@ -101,7 +103,12 @@
 			fetch('/roomCodeApi', op).then(response =>{
 				console.log(response.status);
 				if(response.status === 201){
-					window.location.href = '/connectionTest';
+					localStorage.setItem('name', name);
+					localStorage.setItem('code', code);
+					localStorage.setItem('type', type);
+					window.location.href = '/lobby';
+					
+					
 				}
 				console.log(isVerified);
 			}, error => console.log(error));

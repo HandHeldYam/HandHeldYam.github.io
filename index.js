@@ -2,7 +2,6 @@ const express = require('express');
 const app = express();
 const server = require('http').Server(app);
 app.use(express.static('public'));//listens to files in the
-const path = require('path');
 var router = require('./router.js');
 //app.use('./router', router);
 
@@ -15,8 +14,8 @@ var socket1 = require('socket.io');
 var io = socket1(server);
 
 var clients = [];
-var validRoomCodes = [];
-server.listen(3000, () => console.log('Listening on Port 3000'));
+var validRoomCodes = new Map();
+server.listen(8080, () => console.log('Listening on Port 8080'));
 
 // Import npm packages
 const mongoose = require('mongoose');
@@ -44,10 +43,6 @@ const clientDataModel = mongoose.model('clientData', clientDataSchema);
 
 //specifying URL path of router.js
 
-
-
-
-
 app.get('/', (req, res) => {
    res.sendFile('mainMenu.html', { root:'./' });
    console.log('sent to main menu');
@@ -56,17 +51,19 @@ app.get('/', (req, res) => {
 app.get('/index', (req, res) => {
    res.sendFile('login.html',{root: './'});
 });
-app.get('/smCodeAndJira', (req, res) => {
+app.get('/lobby', (req, res) => {
     res.sendFile('lobby.html', {root: './'});
 });
 app.get('/connectionTest', (req, res) => {
     res.sendFile('connectionTest.html', {root: './'});
 });
 app.post('/roomCodeApi', (req, res) => {
-    console.log('hit post request');
     console.log(req.body);
+    
     if (onCorrectRoomCode(req.body.code)) {
         res.sendStatus(201);
+        client = new Client(null, req.body.name, req.body.type, req.body.code);
+        clients.push(client);
     }
 });
 app.get('/planningPokerScreen', (req, res) => {
@@ -76,36 +73,9 @@ app.get('/planningPokerScreen', (req, res) => {
 
 app.get('/underConstruction', (req, res) => {
     res.sendFile('underConstruction.html', { root: './' });
-})
-io.sockets.on('connection', onConnect);
-function onConnect(socket) {
-    console.log('new connection' + socket.id);
-    c = new Client(socket.id, "temp", "get from json");
-    clients.push(Client);
-    console.log("connected to client");
-
-    socket.on("newClient", handleClient);
-    socket.on("disconnect", onDisconnect);
-}
-
-function handleClient(data) {
-    console.log('Client connecting with code: ' + data.roomCode);
-}
-function onDisconnect(socket) {
-    console.log(socket.id + ' Attempting to disconnect');
-}
-
-class Client{
-    constructor(id, name, type) {
-    this.id = id;
-    this.name = name;
-    this.type = type;
-    }
-
-}
+});
 
 app.post('/UserApi', (request, response) => {
-   console.log("request recieved");
    const data = request.body;
    console.log(data);
     //Add client to database
@@ -117,18 +87,73 @@ app.post('/UserApi', (request, response) => {
    console.log("USer added to list");//no users actually added
 });
 
+app.post('/ScrumMaster', (req, res) => {
+    for(let [key, value] of validRoomCodes.entries()){
+        if (value === req.body.name) {
+            validRoomCodes.delete(key);
+        }
+    }
+    validRoomCodes.set(req.body.code, req.body.name);
+    console.log(validRoomCodes);
+});
+
 //room code that users put in (not SM)
 
 function onCorrectRoomCode(code) {
-    for (var i = 0; i < validRoomCodes.length; i++){
-        if (code === validRoomCodes[i]) {
-            return true;
-        }
+    if (validRoomCodes.has(code)) {
+        return true;
     }
     return false;
 }
 
-app.post('/ScrumMaster', (req, res) => {
-   validRoomCodes.push(req.body.code);
-   console.log(validRoomCodes);
-})
+
+io.sockets.on('connection', onConnect);
+function onConnect(socket) {
+    console.log('new connection' + socket.id);
+    console.log("connected to client");
+
+    socket.on("newClient", handleClient);
+    socket.on('toLobby', toLobby);
+    //console.log(clients);
+    socket.on("disconnect", onDisconnect);
+}
+io
+    .of('/lobby')
+    .on("connection", (socket) => {
+        console.log("connected to Lobby namespace : " + socket.id);
+        socket.on("joinRoom", (room) => {
+            if (validRoomCodes.includes(room)) {
+                socket.join(room);
+                return socket.emit("success", "Connected to room" + room);
+            } else {
+                socket.emit("err", "No room named " + room);
+            }
+        });
+    })
+
+function handleClient(data) {
+    console.log(data.name + ' connecting with code: ' + data.code + " " + data.name + " " + data.type);
+    console.log("added client to list")
+}
+function onDisconnect(socket) {
+    console.log(socket.id + ' Attempting to disconnect');
+    clients.forEach(element => {
+        if (element.id === socket.id) {
+            clients.splice(element);
+        }
+    });
+}
+function toLobby(data) {
+    console.log('hello world!!');
+    clients.push(new Client(data.socketId, data.name, data.type, data.code));
+}
+class Client{
+    constructor(id, name, type, code) {
+        this.id = id;
+        this.name = name;
+        this.type = type;
+        this.code = code;
+    }
+
+}
+
