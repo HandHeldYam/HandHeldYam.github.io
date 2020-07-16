@@ -1,6 +1,10 @@
 
 
 /* Style the counter cards, set background image to asf watermark */
+
+.body{
+  flex-direction:row !important;
+}
 .card {
     width: 200px;
     height: 300px;
@@ -19,6 +23,7 @@
     bottom: 10px;
     left: 50%;
     margin-left: -104.5px;
+    flex-direction:row !important;
 
 
 }
