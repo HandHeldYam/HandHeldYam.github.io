@@ -12,12 +12,10 @@ app.use(express.json({ limit: '1mb' }));
 
 var socket1 = require('socket.io');
 var io = socket1(server);
-const scrumMasterNS = io.of('/SM'); //creating namespace called /SM on the server
-const clientNS = io.of('/client'); //creating namespace called /client on the server
-
 
 var clients = [];
 var validRoomCodes = new Map();
+
 server.listen(8080, () => console.log('Listening on Port 8080'));
 
 // Import npm packages
@@ -63,10 +61,10 @@ app.get('/connectionTest', (req, res) => {
 app.post('/roomCodeApi', (req, res) => {
     console.log(req.body);
     
-    if (onCorrectRoomCode(req.body.code)) {
-        res.sendStatus(201);
-        client = new Client(null, req.body.name, req.body.type, req.body.code);
-        clients.push(client);
+    if (onCorrectRoomCode(req.body.code)) {//if the room code is correct
+        res.sendStatus(201);//send a 201 rather than 200
+        client = new Client(null, req.body.name, req.body.type, req.body.code);//create a new client
+        clients.push(client);//add them to the clients array
     }
 });
 app.get('/planningPokerScreen', (req, res) => {
@@ -84,21 +82,40 @@ app.post('/UserApi', (request, response) => {
     //Add client to database
    clientDataModel.collection.insertOne({ data }, function (err) {
        if (err) return handleError(err);
-       console.log("User successfully added to Database");
+       //console.log("User successfully added to Database");
    });
 
-   console.log("USer added to list");//no users actually added
 });
 
 app.post('/ScrumMaster', (req, res) => {
-    for(let [key, value] of validRoomCodes.entries()){
-        if (value === req.body.name) {
-            validRoomCodes.delete(key);
+    addRoom(req.body.code, req.body.name);
+
+    for (let [key, value] of validRoomCodes.entries()) { // for printing the map
+        console.log('Key: ' + key + '\nValue: ' + value);
+    } 
+});
+function handleCodes(code, name) {
+    for(let [key, value] of validRoomCodes.entries()){//loop through the current name code pair
+        if (value === name) {//if the name matches (one SM trying to create 2 rooms)
+            transferRoom(key, code);
+            validRoomCodes.delete(key);//delete the old room code
+            console.log('Room ' + key + ' Destroyed');
         }
     }
-    validRoomCodes.set(req.body.code, req.body.name);
-    console.log(validRoomCodes);
-});
+      
+}
+
+function addRoom(code, name) {
+    handleCodes(code, name);
+    validRoomCodes.set(code, name);
+}
+function transferRoom(oldRoom, newRoom) {
+    var oldRoomClients = io.sockets.adapter.rooms['/' + oldRoom].sockets;
+    console.log(oldRoomClients);
+    for (var clientId in oldRoomClients) {
+        io.sockets.connected[clientId].join('/'+newRoom);
+    }
+}
 
 //room code that users put in (not SM)
 
@@ -111,54 +128,35 @@ function onCorrectRoomCode(code) {
 
 
 io.sockets.on('connection', onConnect);//io.sockets = default namespace (/)
-scrumMasterNS.use((socket, next) => {
+io.sockets.use((socket, next) => {//idk what this does
     
     next();
 });
-scrumMasterNS.on('connection', (socket) => {
-    socket.on('joinRoom', code => socket.join(code));
-});
 function onConnect(socket) {
-    console.log('new connection' + socket.id);
-    console.log("connected to client");
-
-    socket.on("newClient", handleClient);
-    socket.on('toLobby', toLobby);
+    //console.log('new connection' + socket.id);
+    //console.log("connected to client");
     //console.log(clients);
     socket.on("disconnect", onDisconnect);
     
+    socket.on("joinRoom", (data) => handleClient(data, socket));
     
-    // socket
-    // .of('/lobby') //gets sockets of the lobby namespace
-    // .on("connection", (socket) => { // on connection, (new socket connecting) 
-    //     console.log("connected to lobby namespace : " + socket.id);//log the socket id
-    //     socket.on("joinRoom", (code) => {//on joinRoom event
-    //         if (validRoomCodes.includes(code)) {//check if the validRoomCodes contains code
-    //             socket.join(code);//join the socket to the room with name code
-    //             return socket.emit("success", "Connected to room" + room);//return a success event
-    //         } else {
-    //             return socket.emit("err", "No room named " + room);//if not return a error event
-    //         }
-    //     });
-    // })
+    
 }
 
 
-function handleClient(data) {
-    console.log(data.name + ' connecting with code: ' + data.code + " " + data.name + " " + data.type);
-    console.log("added client to list")
+function handleClient(data, socket) {
+    console.log('new user attempting to join ' + data.code);
+    if (onCorrectRoomCode(data.code)) {
+        socket.join(validRoomCodes.get(data.code));
+    }
 }
 function onDisconnect(socket) {
     console.log(socket.id + ' Attempting to disconnect');
     clients.forEach(element => {
         if (element.id === socket.id) {
-            clients.splice(element);
+            clients.splice(element, 1);
         }
     });
-}
-function toLobby(data) {
-    console.log('hello world!!');
-    clients.push(new Client(data.socketId, data.name, data.type, data.code));
 }
 class Client{
     constructor(id, name, type, code) {
