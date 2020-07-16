@@ -1,6 +1,6 @@
 <html>
 
-<head>
+<head onload='setUp()'>
     <title>ASF Virtual App</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
@@ -49,7 +49,7 @@
     (function getCode(){
         var code = localStorage.getItem('code');
         var type = localStorage.getItem('type');
-        console.log('I RAN!');
+        
         if(type !== "Scrum Master"){
             document.getElementById('roomCodeDisplay').innerHTML += code;
         }
@@ -62,6 +62,7 @@
         }
         document.getElementById('roomCodeDisplay').innerHTML = 'Code: ' + code;
         code = code.toString();
+        localStorage.setItem('code',code);
         name = localStorage.getItem('name');
         //associate code with sm maybe?
         const data = { code, name };
@@ -73,20 +74,22 @@
             body: JSON.stringify(data)
         };
         fetch('/ScrumMaster', options);
+        setupSocket();
     }
 
-    (function setUpSocket(){
+    function setupSocket(){
+        const code = localStorage.getItem('code');
+        const type = localStorage.getItem('type');
+        const socket = io();
+        socket.emit("joinRoom", {code: code, type: type} );
+        console.log("hello");
 
-    
-    const socket = io();
-    let games = io.connect("http://localhost:8080/lobby");
-    games.emit("joinRoom", code);
-    console.log("hello");
-    
-
-    games.on("err", (err)=> console.log(err));
-    games.on("success", (res) => console.log(res));
-    })();
+    };
+    function setUp(){
+        if(localStorage.getItem('type') !== 'Scrum Master'){
+            setupSocket();
+        }
+    }
 </script>
 
 <style>
