@@ -13,7 +13,6 @@ app.use(express.json({ limit: '1mb' }));
 var socket1 = require('socket.io');
 var io = socket1(server);
 
-var clients = [];
 var validRoomCodes = new Map();
 
 server.listen(8080, () => console.log('Listening on Port 8080'));
@@ -63,8 +62,7 @@ app.post('/roomCodeApi', (req, res) => {
     
     if (onCorrectRoomCode(req.body.code)) {//if the room code is correct
         res.sendStatus(201);//send a 201 rather than 200
-        client = new Client(null, req.body.name, req.body.type, req.body.code);//create a new client
-        clients.push(client);//add them to the clients array
+        
     }
 });
 app.get('/planningPokerScreen', (req, res) => {
@@ -97,10 +95,12 @@ app.post('/ScrumMaster', (req, res) => {
 function handleCodes(code, name) {
     for(let [key, value] of validRoomCodes.entries()){//loop through the current name code pair
         if (value === name) {//if the name matches (one SM trying to create 2 rooms)
-            transferRoom(key, code);
+            console.log('Scrum Master trying to create 2 rooms');
+            transferRoom(key, code);// transfer all connections to old room to the new room
             validRoomCodes.delete(key);//delete the old room code
-            console.log('Room ' + key + ' Destroyed');
+            console.log('Room ' + key + ' Deleted');
         }
+        
     }
       
 }
@@ -109,11 +109,12 @@ function addRoom(code, name) {
     handleCodes(code, name);
     validRoomCodes.set(code, name);
 }
-function transferRoom(oldRoom, newRoom) {
-    var oldRoomClients = io.sockets.adapter.rooms['/' + oldRoom].sockets;
+function transferRoom(oldRoom, newRoom) { //needs work 
+    var oldRoomClients = io.sockets.adapter.rooms[oldRoom];
     console.log(oldRoomClients);
     for (var clientId in oldRoomClients) {
-        io.sockets.connected[clientId].join('/'+newRoom);
+        io.sockets.connected[clientId].join(newRoom);
+        console.log('moving ' + clientId + ' to ' + newRoom);
     }
 }
 
@@ -150,13 +151,9 @@ function handleClient(data, socket) {
         socket.join(validRoomCodes.get(data.code));
     }
 }
-function onDisconnect(socket) {
+function onDisconnect(socket) { //to do .......................
     console.log(socket.id + ' Attempting to disconnect');
-    clients.forEach(element => {
-        if (element.id === socket.id) {
-            clients.splice(element, 1);
-        }
-    });
+
 }
 class Client{
     constructor(id, name, type, code) {
