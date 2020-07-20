@@ -20,6 +20,13 @@
 
         </div>
     </header>
+    <main>
+        <div>
+            <ul id="userList">
+
+            </ul>
+        </div>
+    </main>
     <!-- Footer -->
     <footer id="footer">
         <ul class="copyright">
@@ -32,68 +39,63 @@
 </html>
 <script src="/socket.io/socket.io.js"></script>
 <script>//create a new socket room on each page load
-    var code,name,type;
-    
-    (function load(){
-        console.log('SETTING GLOBAL VARIABLES');
-        code = localStorage.getItem('code');
-        name = localStorage.getItem('name');
-        type = localStorage.getItem('type');
-    })();
+    //var code,name,type;
+    var code = localStorage.getItem('code');
+    const type = localStorage.getItem('type');
+    const name = localStorage.getItem('name');
+    var socket = io();
 
-    (function getName() {
-        console.log('HELLO WORlD');
+    (function setUp(){
+        console.log("Setting name type and code");
         document.getElementById('name').innerHTML += name;
-        console.log(name);
-    })();
-
-    (function getType(){
         document.getElementById('type').innerHTML += type;
         if(type === "Scrum Master"){
             document.getElementById('codeButton').style.visibility = 'visible' ;
+            generateCode();
         } else {
             document.getElementById('codeButton').style.visibility = 'hidden';
-        }
-    })();
-    (function getCode(){
-        if(type !== "Scrum Master"){
             document.getElementById('roomCodeDisplay').innerHTML += code;
         }
-    })();
 
-    function generateCode() {
-        var code = "";
+
+    })();
+    if(type !== 'Scrum Master'){
+        socket.emit("joinRoom", {code: code, type: type, name: name} );
+    }
+    socket.on('newRoom', newRoom);
+    function newRoom(newRoom){
+        console.log('Joining new Room: ' + newRoom);
+    }
+    socket.on("displayName", (data) => {
+       var node = document.createElement("LI");
+       var nodeElem = document.createTextNode(data);
+        console.log(data);
+       node.appendChild(nodeElem);
+        document.getElementById('userList').appendChild(node);
+    })
+
+
+
+    function generateCode() {//dont need html requests anymore hopefull
+        const oldCode = code;
+        code = "";
         for (var i = 0; i < 4; i++) {
             code += parseInt(Math.random() * 10);
         }
         document.getElementById('roomCodeDisplay').innerHTML = 'Code: ' + code;
         code = code.toString();
         localStorage.setItem('code',code);
-        //associate code with sm maybe?
-        const data = { code, name };
-        const options = {
-            method: 'POST',
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(data)
+
+        console.log(code);
+        const data = { //data for deleting the old room and creating a new one
+            oldcode: oldCode, 
+            code: code, 
+            type:type, 
+            name: name
         };
-        fetch('/ScrumMaster', options);
-        setupSocket();
-    }
-
-    function setupSocket(){
-        const code = localStorage.getItem('code');
-        const type = localStorage.getItem('type');
-        const socket = io();
-        socket.emit("joinRoom", {code: code, type: type} );
-        console.log("hello");
-
-    };
-    function setUp(){
-        if(localStorage.getItem('type') !== 'Scrum Master'){
-            setupSocket();
-        }
+        socket.emit("addRoom", data); 
+        socket.emit("joinRoom", {code: code, type: type, name: name});
+        console.log('end of generateCode');
     }
 </script>
 

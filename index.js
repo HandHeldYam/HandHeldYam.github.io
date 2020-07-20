@@ -84,84 +84,98 @@ app.post('/UserApi', (request, response) => {
    });
 
 });
-
-app.post('/ScrumMaster', (req, res) => {
-    addRoom(req.body.code, req.body.name);
-
-    for (let [key, value] of validRoomCodes.entries()) { // for printing the map
-        console.log('Key: ' + key + '\nValue: ' + value);
-    } 
-});
-function handleCodes(code, name) {
-    for(let [key, value] of validRoomCodes.entries()){//loop through the current name code pair
-        if (value === name) {//if the name matches (one SM trying to create 2 rooms)
-            console.log('Scrum Master trying to create 2 rooms');
-            transferRoom(key, code);// transfer all connections to old room to the new room
-            validRoomCodes.delete(key);//delete the old room code
-            console.log('Room ' + key + ' Deleted');
-        }
-        
+// data {
+//     oldcode: oldCode, 
+//     code: code, 
+//     type:type, 
+//     name: name
+// }
+function handleCodes(data, socket) { //returns room
+    if (validRoomCodes.has(data.oldcode) && !validRoomCodes.has(data.code)) {//if this isnt SM first room
+        validRoomCodes.set(data.code, data.name);
+        io.sockets.to(data.oldcode).emit("joinRoom", data.code);
+        validRoomCodes.delete(data.oldcode);
+    } else if (data.oldcode === null && !validRoomCodes.has(data.code)) {
+        validRoomCodes.set(data.code, data.name);
+        socket.emit("joinRoom", data.code);
+    } else if (validRoomCodes.has(data.code)) {
+        console.log("trying to make 2 of the same codes server crashing now ");
     }
+    
       
 }
-
-function addRoom(code, name) {
-    handleCodes(code, name);
-    validRoomCodes.set(code, name);
+// data {
+//     oldcode: oldCode, 
+//     code: code, 
+//     type:type, 
+//     name: name
+// }
+function addRoom(data, socket) {
+    console.log('addRoom emitted');
+    // for (let [key, value] of validRoomCodes.entries()) { // for printing the map
+    //     console.log('Key: ' + key + '\nValue: ' + value.room);
+    // } 
+   handleCodes(data, socket); //need to have this return the new room with all connected clients
+   
+    validRoomCodes.set(data.code, data.name);//adds ^ to the list of rooms code, name, room[]
+    // for (let [key, value] of validRoomCodes.entries()) { // for printing the map
+    //     console.log('Key: ' + key + '\nValue: ' + value.name);
+    // } 
 }
-function transferRoom(oldRoom, newRoom) { //needs work 
-    var oldRoomClients = io.sockets.adapter.rooms[oldRoom];
-    console.log(oldRoomClients);
-    for (var clientId in oldRoomClients) {
-        io.sockets.connected[clientId].join(newRoom);
-        console.log('moving ' + clientId + ' to ' + newRoom);
-    }
+function transferRoom(data, socket) { //needs work
+    console.log('transfering rooms');
+    const key = data.code;
+    const name = data.name;
+    console.log('From data: Key: ' + key + '\nVal: ' + val.name);
+    var oldRoom = io.sockets.adapter[data.oldRoom].sids;
+    console.log(oldRoom);
+    io.of('/').in(oldRoom).clients((error, clients) => {
+    if (error) throw error;
+    console.log(clients); // => [Anw2LatarvGVVXEIAAAD]
+});
+    console.log('OLD ROOM CLIENTS: ' + oldRoomClients);
 }
 
 //room code that users put in (not SM)
 
 function onCorrectRoomCode(code) {
-    if (validRoomCodes.has(code)) {
-        return true;
-    }
-    return false;
+    return validRoomCodes.has(code);
 }
-
 
 io.sockets.on('connection', onConnect);//io.sockets = default namespace (/)
 io.sockets.use((socket, next) => {//idk what this does
     
     next();
 });
+
 function onConnect(socket) {
     //console.log('new connection' + socket.id);
     //console.log("connected to client");
     //console.log(clients);
     socket.on("disconnect", onDisconnect);
-    
+    socket.on("addRoom", (data, socket) => {
+        if(data.type === 'Scrum Master')
+        addRoom(data, socket);
+    });
     socket.on("joinRoom", (data) => handleClient(data, socket));
-    
-    
+
+    let rooms = Object.keys(socket.rooms);
+    console.log(rooms); // [ <socket.id>, 'room 237' ]
 }
 
 
+
 function handleClient(data, socket) {
-    console.log('new user attempting to join ' + data.code);
+    console.log('joinRoom emitted');
     if (onCorrectRoomCode(data.code)) {
-        socket.join(validRoomCodes.get(data.code));
+        socket.join(data.code);
+        console.log('user joined room' + data.code);
+        socket.to(data.code).emit('displayName', data.name);
+        console.log('called displayName');
     }
 }
 function onDisconnect(socket) { //to do .......................
     console.log(socket.id + ' Attempting to disconnect');
-
-}
-class Client{
-    constructor(id, name, type, code) {
-        this.id = id;
-        this.name = name;
-        this.type = type;
-        this.code = code;
-    }
 
 }
 
