@@ -55,24 +55,26 @@
         } else {
             document.getElementById('codeButton').style.visibility = 'hidden';
             document.getElementById('roomCodeDisplay').innerHTML += code;
+            socket.emit("joinRoom", {code: code, type: type, name: name} );
         }
 
-
     })();
-    if(type !== 'Scrum Master'){
-        socket.emit("joinRoom", {code: code, type: type, name: name} );
-    }
-    socket.on('newRoom', newRoom);
-    function newRoom(newRoom){
-        console.log('Joining new Room: ' + newRoom);
-    }
+    
+    socket.on('joinRoom', (data) => {
+        console.log('joinRoom was recieved' + data);
+        socket.emit("joinRoom", {code: data, type:type, name: name});
+        console.log('got to line 66');
+    });
     socket.on("displayName", (data) => {
-       var node = document.createElement("LI");
-       var nodeElem = document.createTextNode(data);
+        console.log('display name started: ' + data);
+        for(var i =0; i< data.length; i++){
+        var node = document.createElement("LI");
+        var nodeElem = document.createTextNode(data[i]);
         console.log(data);
-       node.appendChild(nodeElem);
+        node.appendChild(nodeElem);
         document.getElementById('userList').appendChild(node);
-    })
+        }
+    });
 
 
 
@@ -94,7 +96,6 @@
             name: name
         };
         socket.emit("addRoom", data); 
-        socket.emit("joinRoom", {code: code, type: type, name: name});
         console.log('end of generateCode');
     }
 </script>

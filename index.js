@@ -92,12 +92,23 @@ app.post('/UserApi', (request, response) => {
 // }
 function handleCodes(data, socket) { //returns room
     if (validRoomCodes.has(data.oldcode) && !validRoomCodes.has(data.code)) {//if this isnt SM first room
+        io.of('/').in(data.oldcode).clients((error, socketIds) => {
+            if (error) throw error;
+            socketIds.forEach(socketId => io.sockets.sockets[socketId].leave(data.oldcode).join(data.code));
+            console.log('moved user from '+ data.oldcode + " to "+ data.code);
+        });
         validRoomCodes.set(data.code, data.name);
-        io.sockets.to(data.oldcode).emit("joinRoom", data.code);
+        codeUsers[data.code] = [];
+        codeUsers[data.code].push(data.name);
+
         validRoomCodes.delete(data.oldcode);
-    } else if (data.oldcode === null && !validRoomCodes.has(data.code)) {
+        codeUsers.splice(data.oldcode);
+
+    } else if (!validRoomCodes.has(data.code)) {
         validRoomCodes.set(data.code, data.name);
-        socket.emit("joinRoom", data.code);
+        codeUsers[data.code] = [];
+        socket.join(data.code);
+        codeUsers[data.code].push(data.name);
     } else if (validRoomCodes.has(data.code)) {
         console.log("trying to make 2 of the same codes server crashing now ");
     }
@@ -116,26 +127,9 @@ function addRoom(data, socket) {
     //     console.log('Key: ' + key + '\nValue: ' + value.room);
     // } 
    handleCodes(data, socket); //need to have this return the new room with all connected clients
-   
-    validRoomCodes.set(data.code, data.name);//adds ^ to the list of rooms code, name, room[]
-    // for (let [key, value] of validRoomCodes.entries()) { // for printing the map
-    //     console.log('Key: ' + key + '\nValue: ' + value.name);
-    // } 
+   rooms = Object.keys(socket.rooms);
+    console.log("rooms: " + rooms); // [ <socket.id>, 'room 237' ]
 }
-function transferRoom(data, socket) { //needs work
-    console.log('transfering rooms');
-    const key = data.code;
-    const name = data.name;
-    console.log('From data: Key: ' + key + '\nVal: ' + val.name);
-    var oldRoom = io.sockets.adapter[data.oldRoom].sids;
-    console.log(oldRoom);
-    io.of('/').in(oldRoom).clients((error, clients) => {
-    if (error) throw error;
-    console.log(clients); // => [Anw2LatarvGVVXEIAAAD]
-});
-    console.log('OLD ROOM CLIENTS: ' + oldRoomClients);
-}
-
 //room code that users put in (not SM)
 
 function onCorrectRoomCode(code) {
@@ -153,25 +147,31 @@ function onConnect(socket) {
     //console.log("connected to client");
     //console.log(clients);
     socket.on("disconnect", onDisconnect);
-    socket.on("addRoom", (data, socket) => {
-        if(data.type === 'Scrum Master')
-        addRoom(data, socket);
+
+    socket.on("addRoom", (data) => {
+    let rooms = Object.keys(socket.rooms);
+    console.log("rooms: " + rooms); // [ <socket.id>, 'room 237' ]
+        if (data.type === 'Scrum Master')
+            addRoom(data, socket);
     });
     socket.on("joinRoom", (data) => handleClient(data, socket));
 
-    let rooms = Object.keys(socket.rooms);
-    console.log(rooms); // [ <socket.id>, 'room 237' ]
 }
-
-
-
+var codeUsers = Array(5);//5 rooms
 function handleClient(data, socket) {
-    console.log('joinRoom emitted');
+    console.log('handling client ');
+    var room = io.sockets.adapter.rooms[data.code];//client ids in room: data.code
+    if (room !== undefined) {
+        console.log(room.length);
+        
+    }
+    
     if (onCorrectRoomCode(data.code)) {
         socket.join(data.code);
+        codeUsers[data.code].push(data.name);
+        console.log('Users connected to ' + data.code + ': ' + codeUsers[data.code]);
         console.log('user joined room' + data.code);
-        socket.to(data.code).emit('displayName', data.name);
-        console.log('called displayName');
+        io.in(data.code).emit('displayName', codeUsers[data.code]);
     }
 }
 function onDisconnect(socket) { //to do .......................
