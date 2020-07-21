@@ -15,15 +15,16 @@
     margin: 1 1em 1em 1;
     font-size: 75px;
     font-weight: normal;
-    text-decoration:none;
     font-family:fantasy;
     box-shadow: .2em .2em .5em #333;
     background-image:url("asf_card.png");
     position:relative;
-    bottom: 10px;
-    left: 50%;
+    bottom: 0px;
+    left: 10%;
     margin-left: -104.5px;
     flex-direction:row !important;
+    flex-wrap: wrap;
+    justify-content: space-between;
 
 
 }
@@ -38,11 +39,4 @@
     text-align:center;
 
 
-}
-
-.card .one {
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  margin-left: -104.5px;
 }
