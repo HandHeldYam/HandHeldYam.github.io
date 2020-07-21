@@ -10,26 +10,26 @@
     height: 300px;
     color: black;
     border: 1px solid #666;
-    border-radius: .3em;
+    border-radius: .5em;
     padding: .25em;
-    margin: 1 1em 1em 1;
+    margin: 2 1em 1em 2;
     font-size: 75px;
     font-weight: normal;
     font-family:fantasy;
     box-shadow: .2em .2em .5em #333;
     background-image:url("asf_card.png");
     position:relative;
-    bottom: 0px;
-    left: 10%;
+    left: 8%;
+    bottom:-200px;
     margin-left: -104.5px;
     flex-direction:row !important;
     flex-wrap: wrap;
-    justify-content: space-between;
+
 
 
 }
 .card:hover {
-  bottom: .5em;
+  bottom: .2em;
 }
 
 
