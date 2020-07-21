@@ -96,14 +96,14 @@ body {
   background-color: #000;
   padding: 6em 4em 4em 4em; }
   body.is-preload *, body.is-preload *:before, body.is-preload *:after {
-    -moz-animation: none !important;
-    -webkit-animation: none !important;
-    -ms-animation: none !important;
-    animation: none !important;
-    -moz-transition: none !important;
-    -webkit-transition: none !important;
-    -ms-transition: none !important;
-    transition: none !important; }
+    -moz-animation: none ;
+    -webkit-animation: none ;
+    -ms-animation: none ;
+    animation: none ;
+    -moz-transition: none ;
+    -webkit-transition: none ;
+    -ms-transition: none ;
+    transition: none ; }
   body > * {
     position: relative;
     z-index: 2; }
@@ -166,10 +166,10 @@ body {
           -ms-animation: bg 18s linear infinite;
           animation: bg 18s linear infinite; } }
     #bg div:only-child {
-      -moz-animation-direction: alternate !important;
-      -webkit-animation-direction: alternate !important;
-      -ms-animation-direction: alternate !important;
-      animation-direction: alternate !important; }
+      -moz-animation-direction: alternate;
+      -webkit-animation-direction: alternate ;
+      -ms-animation-direction: alternate ;
+      animation-direction: alternate ; }
   body.is-preload #bg {
     opacity: 0; }
 
@@ -694,23 +694,23 @@ input[type="radio"] + label:before {
   border-radius: 100%; }
 
 ::-webkit-input-placeholder {
-  color: rgba(255, 255, 255, 0.5) !important;
+  color: rgba(255, 255, 255, 0.5) ;
   opacity: 1.0; }
 
 :-moz-placeholder {
-  color: rgba(255, 255, 255, 0.5) !important;
+  color: rgba(255, 255, 255, 0.5) ;
   opacity: 1.0; }
 
 ::-moz-placeholder {
-  color: rgba(255, 255, 255, 0.5) !important;
+  color: rgba(255, 255, 255, 0.5) ;
   opacity: 1.0; }
 
 :-ms-input-placeholder {
-  color: rgba(255, 255, 255, 0.5) !important;
+  color: rgba(255, 255, 255, 0.5) ;
   opacity: 1.0; }
 
 .formerize-placeholder {
-  color: rgba(255, 255, 255, 0.5) !important;
+  color: rgba(255, 255, 255, 0.5) ;
   opacity: 1.0; }
 
 /* Button */

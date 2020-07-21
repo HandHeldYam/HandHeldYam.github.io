@@ -28,11 +28,11 @@
 			<option value="BA/PO">BA/PO</option>
 			<option value="Guest">Guest</option>
 		</select>
-		<input id="textarea1" type=text>
+		<input id="textarea1" type=text placeholder="Name">
 		<button id="submit" onclick='submitButton()'>Submit</button>
 		<button id="generateCode" onclick='generateCode()' style="visibility:hidden">Create Room</button>
 		<h3 id = "existingSession" style="visibility:hidden"> Joining an existing scrum session? Enter code here: </h3>
-		<input id="textarea2" type=text maxlength="4" style="visibility:hidden">
+		<input id="textarea2" type=text maxlength="4" style="visibility:hidden" placeholder="4 digit code">
 		<button id="submit2" onclick='submitButton2()' style="visibility:hidden">Submit</button>
 	</div>
 
@@ -107,8 +107,6 @@
 					localStorage.setItem('code', code);
 					localStorage.setItem('type', type);
 					window.location.href = '/lobby';
-					
-					
 				}
 				console.log(isVerified);
 			}, error => console.log(error));

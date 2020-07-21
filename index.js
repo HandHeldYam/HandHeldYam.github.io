@@ -4,7 +4,7 @@ const server = require('http').Server(app);
 app.use(express.static('public'));//listens to files in the
 var router = require('./router.js');
 //app.use('./router', router);
-
+let numClients = -1; //sm doesnt count as player but i have no idea if this logic is right lol
 console.log(__dirname);
 //"public" folder
 //app.use('public', express.static(__dirname));
@@ -171,11 +171,12 @@ function handleClient(data, socket) {
         codeUsers[data.code].push(data.name);
         console.log('Users connected to ' + data.code + ': ' + codeUsers[data.code]);
         console.log('user joined room' + data.code);
-        io.in(data.code).emit('displayName', codeUsers[data.code]);
+        io.in(data.code).emit('displayName', codeUsers[numClients]);
+        io.sockets.emit('numberSockets', numClients++);
     }
 }
 function onDisconnect(socket) { //to do .......................
     console.log(socket.id + ' Attempting to disconnect');
-
+    io.sockets.emit('number sockets', numClients--);
 }
 

@@ -5,35 +5,32 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <link rel="stylesheet" href="css/main.css" />
-    
+
 </head>
 
-<body class="is-preload">
+<body>
     <!--Heading-->
-    <header id="header">
-        <h2>Please provide this code to your team: </h2>
-        <button id='codeButton' onclick='generateCode()'>Generate Code</button>
-        <div>
-            <p  id='name'>Name: </p>
-            <p  id='type'>Type: </p>
-            <p id='roomCodeDisplay'>Code: </p>
+    <h2 id='waitingText' style="visibility:visible">Waiting for Scrum Master to start the session...</h2>
+    <div id='load' style="visibility:visible"></div>
+    <h2 id='joinText' style="visibility:hidden">Users can join at (address to login screen) join with code </h2>
+    <div id='info'>
+        <p id='name'>Name: </p>
+        <p id='type'>Type: </p>
+        <p id='roomCodeDisplay'>Code: </p>
+    </div>
 
-        </div>
-    </header>
-    <main>
-        <div>
-            <ul id="userList">
-
-            </ul>
-        </div>
-    </main>
-    <!-- Footer -->
-    <footer id="footer">
-        <ul class="copyright">
-            <li>&copy; CACI.</li>
-            <li>Credits:HTML5 UP</a></li>
+    <!-- <form>
+        <label for="issueID">Enter the first issue ID to be voted on:</label><br>
+        <input type="text" id="issueID" name="issueID" placeholder="Issue ID"><br>
+    </form> -->
+    <h3 class='users'></h3>
+    <div id='container'>
+        <div class='right'>
+            <button id='startSession'>Start</button></div>
+        <label id="numClients">0</label>
+        <ul id="userList">
         </ul>
-    </footer>
+    </div>
 </body>
 
 </html>
@@ -44,39 +41,55 @@
     const type = localStorage.getItem('type');
     const name = localStorage.getItem('name');
     var socket = io();
-
-    (function setUp(){
+    var playerCount = 0;
+    (function setUp() {
         console.log("Setting name type and code");
         document.getElementById('name').innerHTML += name;
         document.getElementById('type').innerHTML += type;
-        if(type === "Scrum Master"){
-            document.getElementById('codeButton').style.visibility = 'visible' ;
+        if (type === "Scrum Master") {
             generateCode();
+            document.getElementById('waitingText').style.visibility = 'hidden';
+            document.getElementById('joinText').style.visibility = 'visible';
+            document.getElementById('startSession').style.visibility = 'visible';
+            document.getElementById('load').style.visibility = 'hidden';
+
+            //adds code to be more readable by SM
+            var node = document.createElement("text");
+            var nodeElem = document.createTextNode(code);
+            console.log(code);
+            node.appendChild(nodeElem);
+            document.getElementById('joinText').appendChild(node);
+            node.style.color = '#44bfad';
+            node.style.fontSize = 'larger'; //end 
         } else {
-            document.getElementById('codeButton').style.visibility = 'hidden';
+            document.getElementById('waitingText').style.visibility = 'visible';
+            document.getElementById('joinText').style.visibility = 'hidden';
             document.getElementById('roomCodeDisplay').innerHTML += code;
-            socket.emit("joinRoom", {code: code, type: type, name: name} );
+            document.getElementById('startSession').style.visibility = 'hidden';
+            socket.emit("joinRoom", { code: code, type: type, name: name });
         }
 
     })();
-    
+
     socket.on('joinRoom', (data) => {
         console.log('joinRoom was recieved' + data);
-        socket.emit("joinRoom", {code: data, type:type, name: name});
+        socket.emit("joinRoom", { code: data, type: type, name: name });
         console.log('got to line 66');
     });
     socket.on("displayName", (data) => {
         console.log('display name started: ' + data);
-        for(var i =0; i< data.length; i++){
-        var node = document.createElement("LI");
-        var nodeElem = document.createTextNode(data[i]);
-        console.log(data);
-        node.appendChild(nodeElem);
-        document.getElementById('userList').appendChild(node);
+        for (var i = 0; i < data.length; i++) {
+            var node = document.createElement("LI");
+            var nodeElem = document.createTextNode(data[i]);
+            console.log(data);
+            node.appendChild(nodeElem);
+            document.getElementById('userList').appendChild(node);
         }
     });
 
-
+    socket.on('numberSockets', (numClients) => {
+        document.getElementById('numClients').textContent = numClients;
+    });
 
     function generateCode() {//dont need html requests anymore hopefull
         const oldCode = code;
@@ -86,24 +99,95 @@
         }
         document.getElementById('roomCodeDisplay').innerHTML = 'Code: ' + code;
         code = code.toString();
-        localStorage.setItem('code',code);
+        localStorage.setItem('code', code);
 
         console.log(code);
         const data = { //data for deleting the old room and creating a new one
-            oldcode: oldCode, 
-            code: code, 
-            type:type, 
+            oldcode: oldCode,
+            code: code,
+            type: type,
             name: name
         };
-        socket.emit("addRoom", data); 
+        socket.emit("addRoom", data);
         console.log('end of generateCode');
     }
 </script>
 
 <style>
-    #header {
-        top: 20%;
-        position: absolute;
+    #info {
+        top: 0;
+        right: 0;
+        margin: auto;
+        position: fixed;
+        line-height: .1vw;
+        padding: 2vw;
     }
 
+    #joinText {
+        margin: auto;
+        top: 10%;
+        position: fixed;
+        left: 15%;
+        font-size: 2vw;
+    }
+
+    #waitingText {
+        margin: auto;
+        top: 10%;
+        position: fixed;
+        left: 25%;
+        font-size: 2vw;
+    }
+
+    #container {
+        background-color: rgb(24, 23, 23);
+        display: block;
+        position: absolute;
+        margin: 0;
+        right: 0;
+        top: 30%;
+        width: 100%;
+        height: 70%;
+    }
+
+    #load {
+        border: 16px solid #f3f3f3;
+        /* Light grey */
+        border-top: 16px solid #44bfad;
+        /* Blue */
+        border-radius: 50% !important;
+        width: 3vw !important;
+        height: 3vw !important;
+        animation: spin 2s linear infinite !important;
+        margin: auto;
+        left: 68%;
+        top: 9%;
+        position: fixed;
+        z-index: 3;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    #startSession {
+        width: 11vw;
+    }
+
+    .right {
+        float: right;
+    }
+
+    #userlist {
+        list-style-type: none;
+        line-height: 6vh;
+        font-size: larger;
+        margin: 2vw;
+    }
 </style>
