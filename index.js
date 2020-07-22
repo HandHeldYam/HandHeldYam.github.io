@@ -2,8 +2,6 @@ const express = require('express');
 const app = express();
 const server = require('http').Server(app);
 app.use(express.static('public'));//listens to files in the
-var router = require('./public/js/router.js');
-app.use('./public/js/router', router);
 let numClients = -1; //sm doesnt count as player but i have no idea if this logic is right lol
 //"public" folder
 //app.use('public', express.static(__dirname));
@@ -33,9 +31,6 @@ app.get('/login', (req, res) => {
 });
 app.get('/lobby', (req, res) => {
     res.sendFile('lobby.html', {root: './'});
-});
-app.get('/connectionTest', (req, res) => {
-    res.sendFile('connectionTest.html', {root: './'});
 });
 app.post('/roomCodeApi', (req, res) => {
     
@@ -143,6 +138,7 @@ function handleClient(data, socket) {
         console.log(codeUsers[data.code]);
         codeUsers[data.code].push(data.name);
         console.log('Users connected to ' + data.code + ': ' + codeUsers[data.code]);
+        console.log('Stored in room : ' + io.sockets.adapter.rooms[data.code].length);
         console.log('user joined room' + data.code);
         let users = codeUsers[data.code];
 
