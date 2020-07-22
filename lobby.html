@@ -4,7 +4,7 @@
     <title>ASF Virtual App</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="/css/main.css" />
 
 </head>
 
@@ -26,10 +26,14 @@
     <h3 class='users'></h3>
     <div id='container'>
         <div class='right'>
-            <button id='startSession'>Start</button></div>
+            <button id='startSession'>Start</button>
+        </div>
         <label id="numClients">0</label>
         <ul id="userList">
         </ul>
+        <div style='background-color:2px solid red'>
+            <p> cards</p>
+        </div>
     </div>
 </body>
 
@@ -77,13 +81,16 @@
         console.log('got to line 66');
     });
     socket.on("displayName", (data) => {
-        console.log('display name started: ' + data);
-        for (var i = 0; i < data.length; i++) {
-            var node = document.createElement("LI");
-            var nodeElem = document.createTextNode(data[i]);
-            console.log(data);
-            node.appendChild(nodeElem);
-            document.getElementById('userList').appendChild(node);
+        code = data.code;//set the new code
+        document.getElementById('roomCodeDisplay').innerHTML = 'Code: '+ code;
+        var userList = document.getElementById('userList');//get the user list
+        userList.childNodes.forEach(elem => elem.remove());//remove all elements of the list
+        
+        for(var i =0; i< data.users.length; i++){//repopulate the list
+        var node = document.createElement("LI");
+        var nodeElem = document.createTextNode(data.users[i]);
+        node.appendChild(nodeElem);
+        document.getElementById('userList').appendChild(node);
         }
     });
 
