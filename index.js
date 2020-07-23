@@ -89,9 +89,6 @@ function handleCodes(data, socket) {
 // }
 function addRoom(data, socket) {
     console.log('addRoom emitted');
-    // for (let [key, value] of validRoomCodes.entries()) { // for printing the map
-    //     console.log('Key: ' + key + '\nValue: ' + value.room);
-    // } 
     codeUsers[data.code] = [];
     handleCodes(data, socket); //need to have this return the new room with all connected clients
     rooms = Object.keys(socket.rooms);
@@ -103,17 +100,9 @@ function onCorrectRoomCode(code) {
     return validRoomCodes.has(code) || codeUsers.includes(code);
 }
 
-io.sockets.on('connection', onConnect);//io.sockets = default namespace (/)
-io.sockets.use((socket, next) => {//idk what this does
-    
-    next();
-});
-
 function onConnect(socket) {
-    //console.log('new connection' + socket.id);
-    //console.log("connected to client");
-    //console.log(clients);
-    socket.on("disconnect", onDisconnect);
+    console.log('this is the socket id: ' + socket.id);
+    socket.on("disconnect", onDisconnect );
 
     socket.on("addRoom", (data) => {
     let rooms = Object.keys(socket.rooms);
@@ -129,24 +118,49 @@ function onConnect(socket) {
 
 }
 
+io.on('connection', onConnect);//io.sockets = default namespace (/)
+io.sockets.use((socket, next) => {//idk what this does
+    
+    next();
+});
+
 function handleClient(data, socket) {
     console.log('handling client ');
     
     if (onCorrectRoomCode(data.code)) {
-        console.log(data.code + ' verified');
-        socket.join(data.code);
-        console.log(codeUsers[data.code]);
-        codeUsers[data.code].push(data.name);
+        socket.join(data.code);//this is what joins socket to room: data.code
+        console.log('users in room: '+codeUsers[data.code]);
+        codeUsers[data.code].push((data.name));
         console.log('Users connected to ' + data.code + ': ' + codeUsers[data.code]);
-        console.log('Stored in room : ' + io.sockets.adapter.rooms[data.code].length);
-        console.log('user joined room' + data.code);
         let users = codeUsers[data.code];
-
         io.in(data.code).emit('displayName', { users: users, code: data.code });
     }
 }
+function getSocket(socketId, room = '0') {
+    if (room !== '0') {
+        io.of('/').in(room).clients((error, socketIds) => {
+            if (error) throw error;
+            socketIds.forEach(socketId => {
+                if (socketIds === socketId) {
+                    return io.of('/').sockets[socketId];
+                }
+            });
+        })
+    }
+    validRoomCodes.forEach(key => {
+        io.of('/').in(key).clients((error, socketIds) => {
+            if (error) throw error;
+            socketIds.forEach(socketId => {
+                if (socketIds === socketId) {
+                    return io.of('/').sockets[socketId];
+                }
+            })
+        });
+    });
+}
 function onDisconnect(socket) { //to do .......................
-    console.log(socket.id + ' Attempting to disconnect');
-    io.sockets.emit('number sockets', numClients--);
+    console.log('User disconnected');
+    console.log(socket);
+    
 }
 

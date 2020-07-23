@@ -8,7 +8,7 @@
 
 </head>
 
-<body>
+<body onunload='disconnect()'>
     <!--Heading-->
     <h2 id='waitingText' style="visibility:visible">Waiting for Scrum Master to start the session...</h2>
     <div id='load' style="visibility:visible"></div>
@@ -28,7 +28,7 @@
         <div class='right'>
             <button id='startSession'>Start</button>
         </div>
-        <label id="numClients">0</label>
+        <label id="numClients">Users: 0</label>
         <ul id="userList">
         </ul>
         <div style='background-color:2px solid red'>
@@ -41,51 +41,62 @@
 <script src="/socket.io/socket.io.js"></script>
 <script>//create a new socket room on each page load
     //var code,name,type;
-    var code = localStorage.getItem('code');
-    const type = localStorage.getItem('type');
-    const name = localStorage.getItem('name');
-    var socket = io();
+    var socket, name, code, type;
     var playerCount = 0;
     (function setUp() {
         console.log("Setting name type and code");
-        document.getElementById('name').innerHTML += name;
-        document.getElementById('type').innerHTML += type;
-        if (type === "Scrum Master") {
+        socket = io();
+        socket.name = localStorage.getItem('name');
+        socket.type = localStorage.getItem('type');
+        socket.code = localStorage.getItem('code');
+        document.getElementById('name').innerHTML += socket.name;
+        document.getElementById('type').innerHTML += socket.type;
+        console.log('got here');
+        if (socket.type === "Scrum Master") {
             generateCode();
+            console.log('got here pt 1.5');
             document.getElementById('waitingText').style.visibility = 'hidden';
             document.getElementById('joinText').style.visibility = 'visible';
             document.getElementById('startSession').style.visibility = 'visible';
             document.getElementById('load').style.visibility = 'hidden';
-
+            console.log('got here pt 2');
             //adds code to be more readable by SM
             var node = document.createElement("text");
-            var nodeElem = document.createTextNode(code);
-            console.log(code);
-            node.appendChild(nodeElem);
-            document.getElementById('joinText').appendChild(node);
             node.style.color = '#44bfad';
             node.style.fontSize = 'larger'; //end 
+            var nodeElem = document.createTextNode(socket.code);
+            node.appendChild(nodeElem);
+            document.getElementById('joinText').appendChild(node);
+
         } else {
             document.getElementById('waitingText').style.visibility = 'visible';
             document.getElementById('joinText').style.visibility = 'hidden';
-            document.getElementById('roomCodeDisplay').innerHTML += code;
+            document.getElementById('roomCodeDisplay').innerHTML += socket.code;
             document.getElementById('startSession').style.visibility = 'hidden';
-            socket.emit("joinRoom", { code: code, type: type, name: name });
+            socket.emit("joinRoom", { code: socket.code, type: socket.type, name: socket.name });
         }
 
     })();
 
     socket.on('joinRoom', (data) => {
         console.log('joinRoom was recieved' + data);
-        socket.emit("joinRoom", { code: data, type: type, name: name });
+        socket.code = data;
+        socket.emit("joinRoom", { code: data, type: socket.type, name: socket.name });
         console.log('got to line 66');
     });
+    function printVars(){
+        console.log('Name: ' + socket.name);
+        console.log('Type: ' + socket.type);
+        console.log('Code: ' + socket.code);
+        console.log("ID: " + socket.id);
+    } 
     socket.on("displayName", (data) => {
-        code = data.code;//set the new code
-        document.getElementById('roomCodeDisplay').innerHTML = 'Code: '+ code;
+        socket.code = data.code;//set the new code
+        document.getElementById('roomCodeDisplay').innerHTML = 'Code: '+ socket.code;
+        printVars();
         var userList = document.getElementById('userList');//get the user list
-        userList.childNodes.forEach(elem => elem.remove());//remove all elements of the list
-        
+        userList.innerHTML = '';
+        document.getElementById('numClients').innerHTML = 'Users ' + data.users.length;
         for(var i =0; i< data.users.length; i++){//repopulate the list
         var node = document.createElement("LI");
         var nodeElem = document.createTextNode(data.users[i]);
@@ -94,29 +105,29 @@
         }
     });
 
-    socket.on('numberSockets', (numClients) => {
-        document.getElementById('numClients').textContent = numClients;
-    });
-
     function generateCode() {//dont need html requests anymore hopefull
-        const oldCode = code;
-        code = "";
+        const oldCode = socket.code;
+        socket.code = "";
         for (var i = 0; i < 4; i++) {
-            code += parseInt(Math.random() * 10);
+            socket.code += parseInt(Math.random() * 10);
         }
-        document.getElementById('roomCodeDisplay').innerHTML = 'Code: ' + code;
-        code = code.toString();
+        document.getElementById('roomCodeDisplay').innerHTML = 'Code: ' + socket.code;
+        socket.code = socket.code.toString();
         localStorage.setItem('code', code);
 
-        console.log(code);
+        console.log(socket.code);
         const data = { //data for deleting the old room and creating a new one
             oldcode: oldCode,
-            code: code,
-            type: type,
-            name: name
+            code: socket.code,
+            type: socket.type,
+            name: socket.name
         };
         socket.emit("addRoom", data);
         console.log('end of generateCode');
+    }
+    function disconnect(){
+        data = {name: name, type: type, code: code};
+        socket.emit('dc', data);
     }
 </script>
 
