@@ -99,7 +99,7 @@
         document.getElementById('numClients').innerHTML = 'Users ' + data.users.length;
         for(var i =0; i< data.users.length; i++){//repopulate the list
         var node = document.createElement("LI");
-        var nodeElem = document.createTextNode(data.users[i]);
+        var nodeElem = document.createTextNode(data.users[i].name + " (" + data.users[i].type +")");
         node.appendChild(nodeElem);
         document.getElementById('userList').appendChild(node);
         }

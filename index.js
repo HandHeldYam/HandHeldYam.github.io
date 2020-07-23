@@ -130,10 +130,11 @@ function handleClient(data, socket) {
     if (onCorrectRoomCode(data.code)) {
         socket.join(data.code);//this is what joins socket to room: data.code
         console.log('users in room: '+codeUsers[data.code]);
-        codeUsers[data.code].push((data.name));
-        console.log('Users connected to ' + data.code + ': ' + codeUsers[data.code]);
-        let users = codeUsers[data.code];
-        io.in(data.code).emit('displayName', { users: users, code: data.code });
+        codeUsers[data.code].push({name: data.name, type: data.type, id: socket.id});
+        console.log('Users connected to ' + data.code + ': ' + codeUsers[data.code].name);
+        console.log('Socket connected props: Name: ' + data.name + ' Type: ' + data.type + 'ID: ' + socket.id);
+        let users = codeUsers[data.code]; 
+        io.in(data.code).emit('displayName', { users: users, code: data.code});
     }
 }
 function getSocket(socketId, room = '0') {
