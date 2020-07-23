@@ -18,19 +18,27 @@
         <p id='type'>Type: </p>
         <p id='roomCodeDisplay'>Code: </p>
     </div>
+    <button style='margin-top:20px' id='startSession'>Start</button>
+
 
     <!-- <form>
         <label for="issueID">Enter the first issue ID to be voted on:</label><br>
         <input type="text" id="issueID" name="issueID" placeholder="Issue ID"><br>
     </form> -->
     <h3 class='users'></h3>
+    
     <div id='container'>
-        <div class='right'>
-            <button id='startSession'>Start</button>
+        <div style='display:flex' style='visibility:hidden' id='issueIDDiv'>
+                <p style='justify-content:flex-start; margin-right:5px'>Enter issue Ids:</p>
+                <input style='width:75%' style='justify-content:flex-end'
+                type='text' id='issueID'>
+                <button id='issueIDButton' onclick='issueButtonClick()'> Submit </button>
         </div>
+
         <label id="numClients">Users: 0</label>
-        <ul id="userList">
+        <ul style="border:1px solid grey" id="userList">
         </ul>
+        <h4 id='issueNumber'>Issue: </h4>
         <div style='background-color:2px solid red'>
             <p> cards</p>
         </div>
@@ -67,8 +75,11 @@
             var nodeElem = document.createTextNode(socket.code);
             node.appendChild(nodeElem);
             document.getElementById('joinText').appendChild(node);
+            document.getElementById('issueID').style.visibility = 'visible';            
 
         } else {
+            document.getElementById('issueID').style.visibility = 'hidden';
+            document.getElementById('issueIDButton').style.visibility = 'hidden';
             document.getElementById('waitingText').style.visibility = 'visible';
             document.getElementById('joinText').style.visibility = 'hidden';
             document.getElementById('roomCodeDisplay').innerHTML += socket.code;
@@ -77,6 +88,16 @@
         }
 
     })();
+    function issueButtonClick(){
+        let issueId = document.getElementById('issueID').value;
+        console.log(issueId);
+        document.getElementById('issueNumber').value = 'Issue: ' + issueId;
+        socket.emit('issue', {issue: issueId, code: code});
+    }
+    socket.on('issue', issueId => {
+        console.log('GOT HERE!!!');
+        document.getElementById('issueNumber').value = 'Issue: ' + issueId;
+    })
 
     socket.on('joinRoom', (data) => {
         console.log('joinRoom was recieved' + data);
@@ -96,7 +117,7 @@
         printVars();
         var userList = document.getElementById('userList');//get the user list
         userList.innerHTML = '';
-        document.getElementById('numClients').innerHTML = 'Users ' + data.users.length;
+        document.getElementById('numClients').innerHTML = 'Users: ' + data.users.length;
         for(var i =0; i< data.users.length; i++){//repopulate the list
         var node = document.createElement("LI");
         var nodeElem = document.createTextNode(data.users[i].name + " (" + data.users[i].type +")");
