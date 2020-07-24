@@ -3,9 +3,11 @@ var express = require('express');
 var router = express.Router();
 
 //  mainMenu page Route
-router.get('/', function (req, res) {
+router.get('/', function (req, res, next) {
   console.log('middle ware for root used');
+  next();
 });
+
 
 //index page Route
 router.get('/index', function (req, res) {
