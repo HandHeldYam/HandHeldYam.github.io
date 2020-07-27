@@ -12,13 +12,13 @@
     <!--Heading-->
     <h2 id='waitingText' style="visibility:visible">Waiting for Scrum Master to start the session...</h2>
     <div id='load' style="visibility:visible"></div>
-    <h2 id='joinText' style="visibility:hidden">Users can join at (address to login screen) join with code </h2>
+    <h2 class='SMO' id='joinText' style="visibility:hidden">Users can join at (address to login screen) join with code </h2>
     <div id='info'>
         <p id='name'>Name: </p>
         <p id='type'>Type: </p>
         <p id='roomCodeDisplay'>Code: </p>
     </div>
-    <button style='margin-top:20px' id='startSession'>Start</button>
+    <button class='SMO' style='margin-top:20px' id='startSession'>Start</button>
 
 
     <!-- <form>
@@ -28,7 +28,8 @@
     <h3 class='users'></h3>
     
     <div id='container'>
-        <div style='display:flex' style='visibility:hidden' id='issueIDDiv'>
+        <div style='display:flex' style='visibility:hidden' id='issueIDDiv'
+        class = 'SMO'>
                 <p style='justify-content:flex-start; margin-right:5px'>Enter issue Ids:</p>
                 <input style='width:75%' style='justify-content:flex-end'
                 type='text' id='issueID'>
@@ -72,7 +73,6 @@
         code = data;
         document.getElementById('roomCodeDisplay').innerHTML = 'Code: '+ socket.code;
         socket.emit("joinRoom", { code: data, type: socket.type, name: socket.name });
-        console.log('got to line 75');
     });
     socket.on('displayName', (data) => {
         console.log('recieved DisplayName event');
@@ -95,20 +95,17 @@
         }
     }
     function generateCode(socket) {//dont need html requests anymore hopefull
-        console.log('In GENERATE CODE:')
         const oldCode = socket.code;
         socket.code = "";
         console.log('socket code before loop ' + socket.code);
         for (var i = 0; i < 4; i++) {
             socket.code += parseInt(Math.random() * 10);
         }
-        console.log('socket code after loop '+ socket.code);
         document.getElementById('roomCodeDisplay').innerHTML = 'Code: ' + socket.code;
         socket.code = socket.code.toString();
         code = socket.code;
         localStorage.setItem('code', code);
 
-        console.log(socket.code);
         const data = { //data for deleting the old room and creating a new one
             oldcode: oldCode,
             code: socket.code,
@@ -116,7 +113,6 @@
             name: socket.name
         };
         socket.emit("addRoom", data, console.log('done with addRoom'));
-        console.log('end of generateCode');
     }
     function disconnect(){
         data = {name: name, type: type, code: code};
@@ -137,10 +133,8 @@
         socket.code = localStorage.getItem('code');
         document.getElementById('name').innerHTML ='Name: ' + socket.name;
         document.getElementById('type').innerHTML = 'Type: ' + socket.type;
-        console.log('got here');
         if (socket.type === "Scrum Master") {
             generateCode(socket);
-            console.log('got here pt 1.5');
             document.getElementById('waitingText').style.visibility = 'hidden';
             document.getElementById('joinText').style.visibility = 'visible';
             document.getElementById('startSession').style.visibility = 'visible';
@@ -149,7 +143,6 @@
             var node = document.createElement("text");
             node.style.color = '#44bfad';
             node.style.fontSize = 'larger'; //end 
-            console.log('socket code: ' + socket.code);
             var nodeElem = document.createTextNode(socket.code);
 
             node.appendChild(nodeElem);

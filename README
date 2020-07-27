@@ -1,5 +1,20 @@
 README
-this the readme
-Hello World.
-Dis is Peter :)
-Hello my name is Shwetha
+
+ASF Planning Poker Project:
+By: Sammy, Nicole, Shwetha, Peter
+
+This project was aimed to create a virtual planning poker web app. The goal of
+this project was to create a poker like game to store data (votes on issues) between different
+users in real time. The end goal of this project is to transfer everything to
+mobile.
+
+Technologies used: 
+NodeJs - JS framework
+- Express - server
+- Socket.io - web socket framework
+
+To Launch: in console: node index.js
+
+sources:
+https://socket.io/docs/
+https://socket.io/docs/emit-cheatsheet/
