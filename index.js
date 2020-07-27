@@ -7,8 +7,7 @@ let numClients = -1; //sm doesnt count as player but i have no idea if this logi
 //app.use('public', express.static(__dirname));
 app.use(express.json({ limit: '1mb' }));
 
-var socket1 = require('socket.io');
-var io = socket1(server);
+var io = require('socket.io')(server);
 
 var validRoomCodes = new Map();
 var codeUsers = Array(5);//5 rooms
@@ -22,6 +21,7 @@ app.get('/', (req, res) => {
    res.sendFile('index.html', { root:'./' });
    console.log('sent to main menu');
 });
+
 app.get('/index', (req, res) => {
     res.sendFile('index.html', {root: './'});
 })
@@ -29,16 +29,11 @@ app.get('/index', (req, res) => {
 app.get('/login', (req, res) => {
    res.sendFile('login.html',{root: './'});
 });
+
 app.get('/lobby', (req, res) => {
     res.sendFile('lobby.html', {root: './'});
 });
-app.post('/roomCodeApi', (req, res) => {
-    
-    if (onCorrectRoomCode(req.body.code)) {//if the room code is correct
-        res.sendStatus(201);//send a 201 rather than 200
-        
-    }
-});
+
 app.get('/planningPokerScreen', (req, res) => {
     res.sendFile('planningPokerScreen.html', {root: './'});
     }
@@ -47,7 +42,111 @@ app.get('/planningPokerScreen', (req, res) => {
 app.get('/underConstruction', (req, res) => {
     res.sendFile('underConstruction.html', { root: './' });
 });
+app.post('/roomCodeApi', (req, res) => {
+    
+    if (onCorrectRoomCode(req.body.code)) {//if the room code is correct
+        res.sendStatus(201);//send a 201 rather than 200
+        
+    }
+});
 
+//room code that users put in (not SM)
+
+
+
+io.sockets.on('connection', onConnect);//io.sockets = default namespace (/)
+
+io.sockets.use((socket, next) => {//idk what this does
+    
+  next();
+});
+
+function onConnect(socket) {
+    socket.emit('hello', 'hello');
+    console.log(socket.id);
+    socket.on("joinRoom", (data) => {
+        console.log('recieved joinRoom');
+        handleClient(data, socket);
+    });
+    socket.on('addRoom', (data) => {
+        console.log('add room recieved');
+        addRoom(socket, data);
+    });
+    socket.on('hi', (data) => {
+        console.log(data);
+    });
+    socket.on('issue', (data) => {
+        console.log('recieved issue: ' + data.issue + ' code: ' + data.code);
+    })
+
+    socket.on("disconnect", () => console.log('user disconnected'));
+}
+
+function handleClient(data, socket) {
+    console.log('handling client ' + socket.id);
+    
+    if (onCorrectRoomCode(data.code)) {
+        socket.join(data.code);//this is what joins socket to room: data.code
+        codeUsers[data.code].push({name: data.name, type: data.type, id: socket.id});
+        console.log('Users connected to ' + data.code + ': ' + codeUsers[data.code].length);
+        console.log('Socket connected props: Name: ' + data.name + ' Type: ' + data.type + 'ID: ' + socket.id);
+        let users = codeUsers[data.code]; 
+        io.in(data.code).emit('displayName', { users: users, code: data.code});//not working
+    }
+}
+
+
+function getSocket(socketId, room = '0') {
+    if (room !== '0') {
+        io.of('/').in(room).clients((error, socketIds) => {
+            if (error) throw error;
+            socketIds.forEach(socketId => {
+                if (socketIds === socketId) {
+                    return io.of('/').sockets[socketId];
+                }
+            });
+        })
+    }
+    validRoomCodes.forEach(key => {
+        io.of('/').in(key).clients((error, socketIds) => {
+            if (error) throw error;
+            socketIds.forEach(socketId => {
+                if (socketIds === socketId) {
+                    return io.of('/').sockets[socketId];
+                }
+            })
+        });
+    });
+}
+// function onDisconnect(socket) { //to do .......................
+//     console.log('User disconnected');
+//     console.log(socket);
+    
+// }
+
+function onCorrectRoomCode(code) {
+    console.log(codeUsers.includes(code));
+    console.log(validRoomCodes.has(code));
+    return validRoomCodes.has(code) || codeUsers.includes(code);
+}
+
+    // data {
+    //     oldcode: oldCode, 
+    //     code: code, 
+    //     type:type, 
+    //     name: name
+    // }
+function addRoom(socket, data) {
+    console.log('hit addROom');
+    let rooms = Object.keys(socket.rooms);
+    console.log("rooms: " + socket.rooms); // [ <socket.id>, 'room 237' ]
+    if (data.type === 'Scrum Master') {
+        codeUsers[data.code] = []; //create the room
+        handleCodes(data, socket); //need to have this return the new room with all connected clients
+        rooms = Object.keys(socket.rooms);
+        console.log("rooms: " + rooms); // [ <socket.id>, 'room 237' ]
+    }
+}
 // data {
 //     oldcode: oldCode, 
 //     code: code, 
@@ -78,88 +177,6 @@ function handleCodes(data, socket) {
     } else if (validRoomCodes.has(data.code)) {
         console.log("trying to make 2 of the same codes server crashing now ");
     }
-    
-      
-}
-// data {
-//     oldcode: oldCode, 
-//     code: code, 
-//     type:type, 
-//     name: name
-// }
-function addRoom(data, socket) {
-    console.log('addRoom emitted');
-    codeUsers[data.code] = [];
-    handleCodes(data, socket); //need to have this return the new room with all connected clients
-    rooms = Object.keys(socket.rooms);
-    console.log("rooms: " + rooms); // [ <socket.id>, 'room 237' ]
-}
-//room code that users put in (not SM)
-
-function onCorrectRoomCode(code) {
-    return validRoomCodes.has(code) || codeUsers.includes(code);
-}
-
-function onConnect(socket) {
-    console.log('this is the socket id: ' + socket.id);
-    socket.on("disconnect", onDisconnect );
-
-    socket.on("addRoom", (data) => {
-    let rooms = Object.keys(socket.rooms);
-    console.log("rooms: " + rooms); // [ <socket.id>, 'room 237' ]
-        if (data.type === 'Scrum Master')
-            addRoom(data, socket);
-    });
-    socket.on("joinRoom", (data) => {
-        console.log('recieved joinRoom');
-        handleClient(data, socket);
-
-    });
-}
-io.on('connection', onConnect);//io.sockets = default namespace (/)
-io.sockets.use((socket, next) => {//idk what this does
-    
-    next();
-});
-
-function handleClient(data, socket) {
-    console.log('handling client ');
-    
-    if (onCorrectRoomCode(data.code)) {
-        socket.join(data.code);//this is what joins socket to room: data.code
-        console.log('users in room: '+codeUsers[data.code]);
-        codeUsers[data.code].push({name: data.name, type: data.type, id: socket.id});
-        console.log('Users connected to ' + data.code + ': ' + codeUsers[data.code]);
-        console.log('Socket connected props: Name: ' + data.name + ' Type: ' + data.type + 'ID: ' + socket.id);
-        let users = codeUsers[data.code]; 
-        io.in(data.code).emit('displayName', { users: users, code: data.code});
-    }
-}
-function getSocket(socketId, room = '0') {
-    if (room !== '0') {
-        io.of('/').in(room).clients((error, socketIds) => {
-            if (error) throw error;
-            socketIds.forEach(socketId => {
-                if (socketIds === socketId) {
-                    return io.of('/').sockets[socketId];
-                }
-            });
-        })
-    }
-    validRoomCodes.forEach(key => {
-        io.of('/').in(key).clients((error, socketIds) => {
-            if (error) throw error;
-            socketIds.forEach(socketId => {
-                if (socketIds === socketId) {
-                    return io.of('/').sockets[socketId];
-                }
-            })
-        });
-    });
-}
-function onDisconnect(socket) { //to do .......................
-    console.log('User disconnected');
-    console.log(socket);
     
 }
 

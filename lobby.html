@@ -1,6 +1,6 @@
 <html>
 
-<head onload='setUp()'>
+<head>
     <title>ASF Virtual App</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
@@ -49,30 +49,114 @@
 <script src="/socket.io/socket.io.js"></script>
 <script>//create a new socket room on each page load
     //var code,name,type;
-    var socket, name, code, type;
+    var name, code, type;
+    const socket = io();
     var playerCount = 0;
-    (function setUp() {
+
+    socket.on('connect', () =>{
+        console.log('connect event');
+        setUp();
+        console.log('after setup : code' + code);
+    });
+    socket.on('hello', () => {
+        socket.emit('hi', socket.name);
+    });
+
+    socket.on('issue', issueId => {
+        console.log('GOT HERE!!!');
+        document.getElementById('issueNumber').value = 'Issue: ' + issueId;
+    });
+    socket.on('joinRoom', (data) => {
+        console.log('joinRoom was recieved' + data);
+        socket.code = data;
+        socket.emit("joinRoom", { code: data, type: socket.type, name: socket.name });
+        console.log('got to line 66');
+    });
+    socket.on('displayName', (data) => {
+        console.log('recieved DisplayName event');
+        displayName(data);
+    });
+
+
+    function displayName(data) {
+        console.log('displayName event');
+        socket.code = data.code;//set the new code
+        document.getElementById('roomCodeDisplay').innerHTML = 'Code: '+ socket.code;
+        printVars();
+        var userList = document.getElementById('userList');//get the user list
+        userList.innerHTML = '';
+        document.getElementById('numClients').innerHTML = 'Users: ' + data.users.length;
+        for(var i =0; i< data.users.length; i++){//repopulate the list
+            var node = document.createElement("LI");
+            var nodeElem = document.createTextNode(data.users[i].name + " (" + data.users[i].type +")");
+            node.appendChild(nodeElem);
+            document.getElementById('userList').appendChild(node);
+        }
+    }
+        function printVars(){
+        console.log('Name: ' + socket.name);
+        console.log('Type: ' + socket.type);
+        console.log('Code: ' + socket.code);
+        console.log("ID: " + socket.id);
+    } 
+    function generateCode(socket) {//dont need html requests anymore hopefull
+        console.log('In GENERATE CODE:')
+        const oldCode = socket.code;
+        socket.code = "";
+        console.log('socket code before loop ' + socket.code);
+        for (var i = 0; i < 4; i++) {
+            socket.code += parseInt(Math.random() * 10);
+        }
+        console.log('socket code after loop '+ socket.code);
+        document.getElementById('roomCodeDisplay').innerHTML = 'Code: ' + socket.code;
+        socket.code = socket.code.toString();
+        code = socket.code;
+        localStorage.setItem('code', code);
+
+        console.log(socket.code);
+        const data = { //data for deleting the old room and creating a new one
+            oldcode: oldCode,
+            code: socket.code,
+            type: socket.type,
+            name: socket.name
+        };
+        socket.emit("addRoom", data, console.log('done with addRoom'));
+        console.log('end of generateCode');
+    }
+    function disconnect(){
+        data = {name: name, type: type, code: code};
+        socket.emit('dc', data);
+    }
+    function issueButtonClick(){
+        let issueId = document.getElementById('issueID').value;
+        console.log(issueId);
+        document.getElementById('issueNumber').value = 'Issue: ' + issueId;
+        console.log('emitting event: issue' + code);
+        socket.emit('issue', {issue: issueId, code: code});
+    }
+    function setUp() {
         console.log("Setting name type and code");
-        socket = io();
+        
         socket.name = localStorage.getItem('name');
         socket.type = localStorage.getItem('type');
         socket.code = localStorage.getItem('code');
-        document.getElementById('name').innerHTML += socket.name;
-        document.getElementById('type').innerHTML += socket.type;
+        document.getElementById('name').innerHTML ='Name: ' + socket.name;
+        document.getElementById('type').innerHTML = 'Type: ' + socket.type;
         console.log('got here');
         if (socket.type === "Scrum Master") {
-            generateCode();
+            generateCode(socket);
             console.log('got here pt 1.5');
             document.getElementById('waitingText').style.visibility = 'hidden';
             document.getElementById('joinText').style.visibility = 'visible';
             document.getElementById('startSession').style.visibility = 'visible';
             document.getElementById('load').style.visibility = 'hidden';
-            console.log('got here pt 2');
             //adds code to be more readable by SM
             var node = document.createElement("text");
             node.style.color = '#44bfad';
             node.style.fontSize = 'larger'; //end 
+            console.log('socket code: ' + socket.code);
             var nodeElem = document.createTextNode(socket.code);
+
             node.appendChild(nodeElem);
             document.getElementById('joinText').appendChild(node);
             document.getElementById('issueID').style.visibility = 'visible';            
@@ -87,69 +171,7 @@
             socket.emit("joinRoom", { code: socket.code, type: socket.type, name: socket.name });
         }
 
-    })();
-    function issueButtonClick(){
-        let issueId = document.getElementById('issueID').value;
-        console.log(issueId);
-        document.getElementById('issueNumber').value = 'Issue: ' + issueId;
-        socket.emit('issue', {issue: issueId, code: code});
-    }
-    socket.on('issue', issueId => {
-        console.log('GOT HERE!!!');
-        document.getElementById('issueNumber').value = 'Issue: ' + issueId;
-    })
-
-    socket.on('joinRoom', (data) => {
-        console.log('joinRoom was recieved' + data);
-        socket.code = data;
-        socket.emit("joinRoom", { code: data, type: socket.type, name: socket.name });
-        console.log('got to line 66');
-    });
-    function printVars(){
-        console.log('Name: ' + socket.name);
-        console.log('Type: ' + socket.type);
-        console.log('Code: ' + socket.code);
-        console.log("ID: " + socket.id);
-    } 
-    socket.on("displayName", (data) => {
-        socket.code = data.code;//set the new code
-        document.getElementById('roomCodeDisplay').innerHTML = 'Code: '+ socket.code;
-        printVars();
-        var userList = document.getElementById('userList');//get the user list
-        userList.innerHTML = '';
-        document.getElementById('numClients').innerHTML = 'Users: ' + data.users.length;
-        for(var i =0; i< data.users.length; i++){//repopulate the list
-        var node = document.createElement("LI");
-        var nodeElem = document.createTextNode(data.users[i].name + " (" + data.users[i].type +")");
-        node.appendChild(nodeElem);
-        document.getElementById('userList').appendChild(node);
-        }
-    });
-
-    function generateCode() {//dont need html requests anymore hopefull
-        const oldCode = socket.code;
-        socket.code = "";
-        for (var i = 0; i < 4; i++) {
-            socket.code += parseInt(Math.random() * 10);
-        }
-        document.getElementById('roomCodeDisplay').innerHTML = 'Code: ' + socket.code;
-        socket.code = socket.code.toString();
-        localStorage.setItem('code', code);
-
-        console.log(socket.code);
-        const data = { //data for deleting the old room and creating a new one
-            oldcode: oldCode,
-            code: socket.code,
-            type: socket.type,
-            name: socket.name
-        };
-        socket.emit("addRoom", data);
-        console.log('end of generateCode');
-    }
-    function disconnect(){
-        data = {name: name, type: type, code: code};
-        socket.emit('dc', data);
-    }
+    };
 </script>
 
 <style>
