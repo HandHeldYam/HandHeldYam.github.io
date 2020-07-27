@@ -69,8 +69,10 @@
     socket.on('joinRoom', (data) => {
         console.log('joinRoom was recieved' + data);
         socket.code = data;
+        code = data;
+        document.getElementById('roomCodeDisplay').innerHTML = 'Code: '+ socket.code;
         socket.emit("joinRoom", { code: data, type: socket.type, name: socket.name });
-        console.log('got to line 66');
+        console.log('got to line 75');
     });
     socket.on('displayName', (data) => {
         console.log('recieved DisplayName event');
@@ -82,7 +84,6 @@
         console.log('displayName event');
         socket.code = data.code;//set the new code
         document.getElementById('roomCodeDisplay').innerHTML = 'Code: '+ socket.code;
-        printVars();
         var userList = document.getElementById('userList');//get the user list
         userList.innerHTML = '';
         document.getElementById('numClients').innerHTML = 'Users: ' + data.users.length;
@@ -93,12 +94,6 @@
             document.getElementById('userList').appendChild(node);
         }
     }
-        function printVars(){
-        console.log('Name: ' + socket.name);
-        console.log('Type: ' + socket.type);
-        console.log('Code: ' + socket.code);
-        console.log("ID: " + socket.id);
-    } 
     function generateCode(socket) {//dont need html requests anymore hopefull
         console.log('In GENERATE CODE:')
         const oldCode = socket.code;

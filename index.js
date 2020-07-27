@@ -125,8 +125,6 @@ function getSocket(socketId, room = '0') {
 // }
 
 function onCorrectRoomCode(code) {
-    console.log(codeUsers.includes(code));
-    console.log(validRoomCodes.has(code));
     return validRoomCodes.has(code) || codeUsers.includes(code);
 }
 
@@ -154,14 +152,16 @@ function addRoom(socket, data) {
 //     name: name
 // }
 function handleCodes(data, socket) {
-    if (validRoomCodes.has(data.oldcode) && !validRoomCodes.has(data.code)) {//if this isnt SM first room
+    if (/*validRoomCodes.has(data.oldcode)*/codeUsers.includes(data.oldcode) && !validRoomCodes.has(data.code)) {//if this isnt SM first room
         console.log('OPTION 1---------------------------------');
         validRoomCodes.set(data.code, data.name);
         io.of('/').in(data.oldcode).clients((error, socketIds) => {
             if (error) throw error;
             socketIds.forEach(socketId => {
                 io.sockets.sockets[socketId].leave(data.oldcode);
+                console.log('socket id: ' + socketId + ' leaving room: ' + data.oldcode);
                 io.sockets.sockets[socketId].emit('joinRoom', data.code);
+                console.log('socket id: ' + socketId + ' joined room: ' + data.code);
             });
             console.log('moved user from '+ data.oldcode + " to "+ data.code);
         });
