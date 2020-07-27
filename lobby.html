@@ -64,7 +64,7 @@
 
     socket.on('issue', issueId => {
         console.log('GOT HERE!!!');
-        document.getElementById('issueNumber').value = 'Issue: ' + issueId;
+        document.getElementById('issueNumber').innerHTML = 'Issue: ' + issueId;
     });
     socket.on('joinRoom', (data) => {
         console.log('joinRoom was recieved' + data);

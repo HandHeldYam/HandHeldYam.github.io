@@ -11,6 +11,7 @@ var io = require('socket.io')(server);
 
 var validRoomCodes = new Map();
 var codeUsers = Array(5);//5 rooms
+var issues = [];
 
 server.listen(8080, () => console.log('Listening on Port 8080'));
 
@@ -77,7 +78,9 @@ function onConnect(socket) {
     });
     socket.on('issue', (data) => {
         console.log('recieved issue: ' + data.issue + ' code: ' + data.code);
-    })
+        io.in(data.code).emit('issue', data.issue);
+
+    });
 
     socket.on("disconnect", () => console.log('user disconnected'));
 }
@@ -139,7 +142,6 @@ function addRoom(socket, data) {
     let rooms = Object.keys(socket.rooms);
     console.log("rooms: " + socket.rooms); // [ <socket.id>, 'room 237' ]
     if (data.type === 'Scrum Master') {
-        codeUsers[data.code] = []; //create the room
         handleCodes(data, socket); //need to have this return the new room with all connected clients
         rooms = Object.keys(socket.rooms);
         console.log("rooms: " + rooms); // [ <socket.id>, 'room 237' ]
@@ -152,9 +154,11 @@ function addRoom(socket, data) {
 //     name: name
 // }
 function handleCodes(data, socket) {
-    if (/*validRoomCodes.has(data.oldcode)*/codeUsers.includes(data.oldcode) && !validRoomCodes.has(data.code)) {//if this isnt SM first room
+    if (codeUsers.includes(data.oldcode) && !validRoomCodes.has(data.code)) {//if this isnt SM first room
         console.log('OPTION 1---------------------------------');
         validRoomCodes.set(data.code, data.name);
+        codeUsers[data.code] = []; //create the room
+
         io.of('/').in(data.oldcode).clients((error, socketIds) => {
             if (error) throw error;
             socketIds.forEach(socketId => {
@@ -173,6 +177,8 @@ function handleCodes(data, socket) {
     } else if (!validRoomCodes.has(data.code)) {
          console.log('OPTION 2---------------------------------');
         validRoomCodes.set(data.code, data.name);
+        codeUsers[data.code] = []; //create the room
+
         socket.emit('joinRoom', data.code);
     } else if (validRoomCodes.has(data.code)) {
         console.log("trying to make 2 of the same codes server crashing now ");
