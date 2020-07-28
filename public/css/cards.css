@@ -1,42 +1,27 @@
-
-
 /* Style the counter cards, set background image to asf watermark */
 
-.body{
-  flex-direction:row !important;
-}
 .card {
-    width: 200px;
-    height: 300px;
-    color: black;
-    border: 1px solid #666;
-    border-radius: .5em;
-    padding: .25em;
-    margin: 2 1em 1em 2;
-    font-size: 75px;
-    font-weight: normal;
-    font-family:fantasy;
-    box-shadow: .2em .2em .5em #333;
-    background-image:url("asf_card.png");
-    position:relative;
-    left: 8%;
-    bottom:-200px;
-    margin-left: -104.5px;
-    flex-direction:row !important;
-    flex-wrap: wrap;
-
-
-
+    width: 8em;
+    height: 12.00em;
+    background-position: center;
+    background-size: contain;
+    background-image: url("asf_card.png");
+    position: relative;
+    display: inline-block;
+    margin: .2em;
+    left: 5%;
 }
+
 .card:hover {
-  bottom: .2em;
+    bottom: 1em;
+    border-color: teal;
 }
-
 
 .card .rank {
-    display:block;
+    display: block;
     line-height: 3;
-    text-align:center;
-
-
+    text-align: center;
+    font-size: 4vw;
+    color: black;
+    font-family: Georgia, 'Times New Roman', Times, serif;
 }

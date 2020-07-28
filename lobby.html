@@ -5,20 +5,20 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <link rel="stylesheet" href="/css/main.css" />
-
+    <link rel="stylesheet" href="css/cards.css" />
 </head>
 
 <body onunload='disconnect()'>
     <!--Heading-->
     <h2 id='waitingText' style="visibility:visible">Waiting for Scrum Master to start the session...</h2>
     <div id='load' style="visibility:visible"></div>
-    <h2 class='SMO' id='joinText' style="visibility:hidden">Users can join at (address to login screen) join with code </h2>
+    <h2 class='SMO' id='joinText' style="visibility:hidden">Users can join at (address to login screen) join with code
+    </h2>
     <div id='info'>
         <p id='name'>Name: </p>
         <p id='type'>Type: </p>
         <p id='roomCodeDisplay'>Code: </p>
     </div>
-    <button class='SMO' style='margin-top:20px' id='startSession'>Start</button>
 
 
     <!-- <form>
@@ -26,35 +26,68 @@
         <input type="text" id="issueID" name="issueID" placeholder="Issue ID"><br>
     </form> -->
     <h3 class='users'></h3>
-    
+
     <div id='container'>
-        <div style='display:flex' style='visibility:hidden' id='issueIDDiv'
-        class = 'SMO'>
-                <p style='justify-content:flex-start; margin-right:5px'>Enter issue Ids:</p>
-                <input style='width:75%' style='justify-content:flex-end'
-                type='text' id='issueID'>
-                <button id='issueIDButton' onclick='issueButtonClick()'> Submit </button>
+        <div style='display:flex' style='visibility:hidden' id='issueIDDiv' class='SMO'>
+            <p id='EnterIssueText' style='justify-content:flex-start; margin-right:5px;'>Enter Issue ID:</p>
+            <input style='width:75%' style='justify-content:flex-end' type='text' id='issueID'>
+            <button id='issueIDButton' onclick='issueButtonClick()'> Submit </button>
         </div>
 
         <label id="numClients">Users: 0</label>
         <ul style="border:1px solid grey" id="userList">
         </ul>
         <h4 id='issueNumber'>Issue: </h4>
-        <div style='background-color:2px solid red'>
-            <p> cards</p>
+        <div id='cardsDiv'>
+            <a class="card rank-1">
+                <span class="rank">1</span>
+            </a>
+
+            <a class="card rank-2">
+                <span class="rank">2</span>
+            </a>
+
+            <a class="card rank-3">
+                <span class="rank">3</span>
+            </a>
+
+            <a class="card rank-5">
+                <span class="rank">5</span>
+            </a>
+
+            <a class="card rank-8">
+                <span class="rank">8</span>
+            </a>
+
+            <a class="card rank-13">
+                <span class="rank">13</span>
+            </a>
+
+            <a class="card rank-21">
+                <span class="rank">21</span>
+            </a>
+
+            <a class="card rank-?">
+                <span class="rank">?</span>
+            </a>
+
+            <a class="card rank-infinity">
+                <span class="rank">&#8734;</span>
+            </a>
         </div>
     </div>
 </body>
 
 </html>
 <script src="/socket.io/socket.io.js"></script>
-<script>//create a new socket room on each page load
+<script>
+    //create a new socket room on each page load
     //var code,name,type;
     var name, code, type;
     const socket = io();
     var playerCount = 0;
 
-    socket.on('connect', () =>{
+    socket.on('connect', () => {
         console.log('connect event');
         setUp();
         console.log('after setup : code' + code);
@@ -71,8 +104,12 @@
         console.log('joinRoom was recieved' + data);
         socket.code = data;
         code = data;
-        document.getElementById('roomCodeDisplay').innerHTML = 'Code: '+ socket.code;
-        socket.emit("joinRoom", { code: data, type: socket.type, name: socket.name });
+        document.getElementById('roomCodeDisplay').innerHTML = 'Code: ' + socket.code;
+        socket.emit("joinRoom", {
+            code: data,
+            type: socket.type,
+            name: socket.name
+        });
     });
     socket.on('displayName', (data) => {
         console.log('recieved DisplayName event');
@@ -82,19 +119,20 @@
 
     function displayName(data) {
         console.log('displayName event');
-        socket.code = data.code;//set the new code
-        document.getElementById('roomCodeDisplay').innerHTML = 'Code: '+ socket.code;
-        var userList = document.getElementById('userList');//get the user list
+        socket.code = data.code; //set the new code
+        document.getElementById('roomCodeDisplay').innerHTML = 'Code: ' + socket.code;
+        var userList = document.getElementById('userList'); //get the user list
         userList.innerHTML = '';
         document.getElementById('numClients').innerHTML = 'Users: ' + data.users.length;
-        for(var i =0; i< data.users.length; i++){//repopulate the list
+        for (var i = 0; i < data.users.length; i++) { //repopulate the list
             var node = document.createElement("LI");
-            var nodeElem = document.createTextNode(data.users[i].name + " (" + data.users[i].type +")");
+            var nodeElem = document.createTextNode(data.users[i].name + " (" + data.users[i].type + ")");
             node.appendChild(nodeElem);
             document.getElementById('userList').appendChild(node);
         }
     }
-    function generateCode(socket) {//dont need html requests anymore hopefull
+
+    function generateCode(socket) { //dont need html requests anymore hopefull
         const oldCode = socket.code;
         socket.code = "";
         console.log('socket code before loop ' + socket.code);
@@ -114,30 +152,39 @@
         };
         socket.emit("addRoom", data, console.log('done with addRoom'));
     }
-    function disconnect(){
-        data = {name: name, type: type, code: code};
+
+    function disconnect() {
+        data = {
+            name: name,
+            type: type,
+            code: code
+        };
         socket.emit('dc', data);
     }
-    function issueButtonClick(){
+
+    function issueButtonClick() {
         let issueId = document.getElementById('issueID').value;
         console.log(issueId);
         document.getElementById('issueNumber').value = 'Issue: ' + issueId;
         console.log('emitting event: issue' + code);
-        socket.emit('issue', {issue: issueId, code: code});
+        socket.emit('issue', {
+            issue: issueId,
+            code: code
+        });
     }
+
     function setUp() {
         console.log("Setting name type and code");
-        
+
         socket.name = localStorage.getItem('name');
         socket.type = localStorage.getItem('type');
         socket.code = localStorage.getItem('code');
-        document.getElementById('name').innerHTML ='Name: ' + socket.name;
+        document.getElementById('name').innerHTML = 'Name: ' + socket.name;
         document.getElementById('type').innerHTML = 'Type: ' + socket.type;
         if (socket.type === "Scrum Master") {
             generateCode(socket);
             document.getElementById('waitingText').style.visibility = 'hidden';
             document.getElementById('joinText').style.visibility = 'visible';
-            document.getElementById('startSession').style.visibility = 'visible';
             document.getElementById('load').style.visibility = 'hidden';
             //adds code to be more readable by SM
             var node = document.createElement("text");
@@ -147,16 +194,20 @@
 
             node.appendChild(nodeElem);
             document.getElementById('joinText').appendChild(node);
-            document.getElementById('issueID').style.visibility = 'visible';            
+            document.getElementById('issueID').style.visibility = 'visible';
 
         } else {
             document.getElementById('issueID').style.visibility = 'hidden';
+            document.getElementById('EnterIssueText').style.visibility = 'hidden';
             document.getElementById('issueIDButton').style.visibility = 'hidden';
             document.getElementById('waitingText').style.visibility = 'visible';
             document.getElementById('joinText').style.visibility = 'hidden';
             document.getElementById('roomCodeDisplay').innerHTML += socket.code;
-            document.getElementById('startSession').style.visibility = 'hidden';
-            socket.emit("joinRoom", { code: socket.code, type: socket.type, name: socket.name });
+            socket.emit("joinRoom", {
+                code: socket.code,
+                type: socket.type,
+                name: socket.name
+            });
         }
 
     };
@@ -171,7 +222,7 @@
         line-height: .1vw;
         padding: 2vw;
     }
-
+    
     #joinText {
         margin: auto;
         top: 10%;
@@ -179,7 +230,7 @@
         left: 15%;
         font-size: 2vw;
     }
-
+    
     #waitingText {
         margin: auto;
         top: 10%;
@@ -187,7 +238,7 @@
         left: 25%;
         font-size: 2vw;
     }
-
+    
     #container {
         background-color: rgb(24, 23, 23);
         display: block;
@@ -198,7 +249,7 @@
         width: 100%;
         height: 70%;
     }
-
+    
     #load {
         border: 16px solid #f3f3f3;
         /* Light grey */
@@ -214,25 +265,20 @@
         position: fixed;
         z-index: 3;
     }
-
+    
     @keyframes spin {
         0% {
             transform: rotate(0deg);
         }
-
         100% {
             transform: rotate(360deg);
         }
     }
-
-    #startSession {
-        width: 11vw;
-    }
-
+    
     .right {
         float: right;
     }
-
+    
     #userlist {
         list-style-type: none;
         line-height: 6vh;
