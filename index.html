@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>ASF Virtual App</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="/css/main.css" />
+</head>
+
+<body>
+    <h1 class="header"><img class="asflogo" src="images/asf-transparent.png"></h1>
+    <h2 class="gofar">GO FAR TOGETHER.</h2>
+    <p class="desc">Planning Poker. Real time Estimations. Virtual Scrums. All your ASF resources in one platform..</p>
+    <div class="button-group">
+        <a href="/login" class="button">
+            <figure><img src="images/planningPoker.png"></figure>
+            <div class="text">
+                Planning Poker
+            </div>
+        </a>
+        <a href="/underConstruction" class="button">
+            <figure><img src="images/retrospectives.png"></figure>
+            <div class="text">
+                Retrospectives
+            </div>
+        </a>
+        <a href="/index" class="button">
+            <figure><img src="images/wiki.png"></figure>
+            <div class="text">
+                ASF Website
+            </div>
+        </a>
+    </div>
+</body>
+</html>
+<style>
+    .gofar {
+        color: white;
+        font-family: 'Roboto', Verdana, sans-serif;
+        font-size: 4.5vw;
+        font-weight: bold;
+        text-align: center;
+        position: fixed;
+        top: 25%;
+        left: 0;
+        right: 0;
+    }
+
+    .header>.asflogo {
+        height: auto;
+        width: 20vw;
+        top: 8%;
+        left: 3%;
+        position: fixed;
+        overflow-x: hidden;
+        opacity: 1;
+    }
+
+    .button-group {
+        left: 25%;
+        bottom: 10%;
+        position: absolute;
+        text-align: center;
+    }
+
+    .button-group .button {
+        height: 17vw;
+        width: 15vw;
+        background-color: #44bfad;
+        border-radius: 6px;
+        margin-left: .7vw;
+        opacity: .8;
+        padding: 1vw;
+        text-align: center;
+    }
+
+    .button-group .button:hover {
+        background-color: #44bfad;
+        opacity: 1;
+    }
+
+    .button-group .button .text {
+        font-size: 1.4vw;
+        color: white;
+        font-family: "EncodeSans-Regular", Helvetica, Arial, sans-serif;
+        text-align: center;
+        text-transform: uppercase;
+    }
+
+    .button-group figure img {
+        height: auto;
+        width: 11vw;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+
+    }
+
+    .desc {
+        color:rgba(255, 255, 255, 0.6);
+        font-family: 'Roboto', Verdana, sans-serif;
+        font-size: 1.5vw;
+        text-align: center;
+        position: fixed;
+        right: 0;
+        left: 0;
+        top: 40%;
+    }
+</style>
+<script src="js/main.js"></script>
+
+</html>
