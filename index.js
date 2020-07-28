@@ -65,7 +65,6 @@ io.sockets.use((socket, next) => {//idk what this does
 });
 
 function onConnect(socket) {
-    socket.emit('hello', 'hello');
     console.log(socket.id);
     socket.on("joinRoom", (data) => {
         console.log('recieved joinRoom');
@@ -75,13 +74,16 @@ function onConnect(socket) {
         console.log('add room recieved');
         addRoom(socket, data);
     });
-    socket.on('hi', (data) => {
-        console.log(data);
-    });
     socket.on('issue', (data) => {
         console.log('recieved issue: ' + data.issue + ' code: ' + data.code);
         io.in(data.code).emit('issue', data.issue);
 
+    });
+    socket.on('start', (data) => {
+        console.log(socket.id);
+        if (data.type === 'Scrum Master') {
+            io.in(data.code).emit('start');
+        }
     });
 
     socket.on("disconnect", () => console.log('user disconnected'));

@@ -1,5 +1,4 @@
 <html>
-
 <head>
     <title>ASF Virtual App</title>
     <meta charset="utf-8" />
@@ -14,6 +13,7 @@
     <div id='load' style="visibility:visible"></div>
     <h2 class='SMO' id='joinText' style="visibility:hidden">Users can join at (address to login screen) join with code
     </h2>
+    <button style='visibility:hidden' id='startButton' onclick='startGame(socket)'>Start</button>
     <div id='info'>
         <p id='name'>Name: </p>
         <p id='type'>Type: </p>
@@ -38,7 +38,7 @@
         <ul style="border:1px solid grey" id="userList">
         </ul>
         <h4 id='issueNumber'>Issue: </h4>
-        <div id='cardsDiv'>
+        <div style='visibility:hidden' id='cardsDiv'>
             <a class="card rank-1">
                 <span class="rank">1</span>
                 <button onclick="buttonClicked()">Select</button>
@@ -85,36 +85,11 @@
             </a>
         </div>
     </div>
-    <script src="/socket.io/socket.io.js"></script>
-       <script>
-         var socket = io();
-         socket.vote = "";
-
-         function buttonClicked(){
-           socket.emit('clicked');
-         }
-
-         //when we receive buttonUpdate, do this
-         socket.on('buttonUpdate', function(data){
-           document.getElementById("buttonCount").innerHTML = 'This issue has been assigned' + data + ' storypoints.';
-         });
-      </script>
 </body>
 
 </html>
 <script src="/socket.io/socket.io.js"></script>
 <script>
-  var socket = io();
-  socket.vote = "";
-
-  function buttonClicked(){
-    socket.emit('clicked');
-}
-
-//when we receive buttonUpdate, do this
-socket.on('buttonUpdate', function(data){
-  document.getElementById("buttonCount").innerHTML = 'This issue has been assigned' + data + ' storypoints.';
-});
     //create a new socket room on each page load
     //var code,name,type;
     var name, code, type;
@@ -126,12 +101,11 @@ socket.on('buttonUpdate', function(data){
         setUp();
         console.log('after setup : code' + code);
     });
-    socket.on('hello', () => {
-        socket.emit('hi', socket.name);
+    
+    socket.on('timerEnd', function(data){//will be recieved when the timer ends
+        document.getElementById("buttonCount").innerHTML = 'This issue has been assigned' + data + ' storypoints.';
     });
-
     socket.on('issue', issueId => {
-        console.log('GOT HERE!!!');
         document.getElementById('issueNumber').innerHTML = 'Issue: ' + issueId;
     });
     socket.on('joinRoom', (data) => {
@@ -149,6 +123,13 @@ socket.on('buttonUpdate', function(data){
         console.log('recieved DisplayName event');
         displayName(data);
     });
+    socket.on('start', () => {
+        document.getElementById('cardsDiv').style.visibility = 'visible';
+    });
+    socket.on('reconnect', () => {
+        const data = {name: name, code: code, }
+        socket.emit('reconnect', )
+    });
 
 
     function displayName(data) {
@@ -165,8 +146,10 @@ socket.on('buttonUpdate', function(data){
             document.getElementById('userList').appendChild(node);
         }
     }
-
-    function generateCode(socket) { //dont need html requests anymore hopefull
+    function buttonClicked(vote){
+        socket.vote = vote;
+    }   
+    function generateCode(socket) {//dont need html requests anymore hopefully
         const oldCode = socket.code;
         socket.code = "";
         console.log('socket code before loop ' + socket.code);
@@ -199,12 +182,14 @@ socket.on('buttonUpdate', function(data){
     function issueButtonClick() {
         let issueId = document.getElementById('issueID').value;
         console.log(issueId);
+        let issues = issueId.toString().split(' ');
         document.getElementById('issueNumber').value = 'Issue: ' + issueId;
         console.log('emitting event: issue' + code);
-        socket.emit('issue', {
-            issue: issueId,
-            code: code
-        });
+        socket.emit('issue', {issue: issues, code: code});
+    }
+    function startGame() {
+        document.getElementById('cardsDiv').style.visibility = 'visible';
+        socket.emit('start', {name: socket.name, type: socket.type, code: socket.code});
     }
 
     function setUp() {
@@ -213,12 +198,14 @@ socket.on('buttonUpdate', function(data){
         socket.name = localStorage.getItem('name');
         socket.type = localStorage.getItem('type');
         socket.code = localStorage.getItem('code');
+        socket.vote = '';
         document.getElementById('name').innerHTML = 'Name: ' + socket.name;
         document.getElementById('type').innerHTML = 'Type: ' + socket.type;
         if (socket.type === "Scrum Master") {
             generateCode(socket);
             document.getElementById('waitingText').style.visibility = 'hidden';
             document.getElementById('joinText').style.visibility = 'visible';
+            document.getElementById('startButton').style.visibility = 'visible';
             document.getElementById('load').style.visibility = 'hidden';
             //adds code to be more readable by SM
             var node = document.createElement("text");
