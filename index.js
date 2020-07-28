@@ -12,6 +12,8 @@ var io = require('socket.io')(server);
 var validRoomCodes = new Map();
 var codeUsers = Array(5);//5 rooms
 var issues = [];
+//creates array for card values
+var cardNumbers = Array(9);//9 card values in planning poker
 
 server.listen(8080, () => console.log('Listening on Port 8080'));
 
@@ -44,10 +46,10 @@ app.get('/underConstruction', (req, res) => {
     res.sendFile('underConstruction.html', { root: './' });
 });
 app.post('/roomCodeApi', (req, res) => {
-    
+
     if (onCorrectRoomCode(req.body.code)) {//if the room code is correct
         res.sendStatus(201);//send a 201 rather than 200
-        
+
     }
 });
 
@@ -58,7 +60,7 @@ app.post('/roomCodeApi', (req, res) => {
 io.sockets.on('connection', onConnect);//io.sockets = default namespace (/)
 
 io.sockets.use((socket, next) => {//idk what this does
-    
+
   next();
 });
 
@@ -87,13 +89,13 @@ function onConnect(socket) {
 
 function handleClient(data, socket) {
     console.log('handling client ' + socket.id);
-    
+
     if (onCorrectRoomCode(data.code)) {
         socket.join(data.code);//this is what joins socket to room: data.code
         codeUsers[data.code].push({name: data.name, type: data.type, id: socket.id});
         console.log('Users connected to ' + data.code + ': ' + codeUsers[data.code].length);
         console.log('Socket connected props: Name: ' + data.name + ' Type: ' + data.type + 'ID: ' + socket.id);
-        let users = codeUsers[data.code]; 
+        let users = codeUsers[data.code];
         io.in(data.code).emit('displayName', { users: users, code: data.code});//not working
     }
 }
@@ -124,7 +126,7 @@ function getSocket(socketId, room = '0') {
 // function onDisconnect(socket) { //to do .......................
 //     console.log('User disconnected');
 //     console.log(socket);
-    
+
 // }
 
 function onCorrectRoomCode(code) {
@@ -132,9 +134,9 @@ function onCorrectRoomCode(code) {
 }
 
     // data {
-    //     oldcode: oldCode, 
-    //     code: code, 
-    //     type:type, 
+    //     oldcode: oldCode,
+    //     code: code,
+    //     type:type,
     //     name: name
     // }
 function addRoom(socket, data) {
@@ -148,9 +150,9 @@ function addRoom(socket, data) {
     }
 }
 // data {
-//     oldcode: oldCode, 
-//     code: code, 
-//     type:type, 
+//     oldcode: oldCode,
+//     code: code,
+//     type:type,
 //     name: name
 // }
 function handleCodes(data, socket) {
@@ -183,6 +185,5 @@ function handleCodes(data, socket) {
     } else if (validRoomCodes.has(data.code)) {
         console.log("trying to make 2 of the same codes server crashing now ");
     }
-    
-}
 
+}

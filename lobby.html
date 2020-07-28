@@ -41,46 +41,80 @@
         <div id='cardsDiv'>
             <a class="card rank-1">
                 <span class="rank">1</span>
+                <button onclick="buttonClicked()">Select</button>
             </a>
 
             <a class="card rank-2">
                 <span class="rank">2</span>
+                <button onclick="buttonClicked()">Select</button>
             </a>
 
             <a class="card rank-3">
                 <span class="rank">3</span>
+                <button onclick="buttonClicked()">Select</button>
             </a>
 
             <a class="card rank-5">
                 <span class="rank">5</span>
+                <button onclick="buttonClicked()">Select</button>
             </a>
 
             <a class="card rank-8">
                 <span class="rank">8</span>
+                <button onclick="buttonClicked()">Select</button>
             </a>
 
             <a class="card rank-13">
                 <span class="rank">13</span>
+                <button onclick="buttonClicked()">Select</button>
             </a>
 
             <a class="card rank-21">
                 <span class="rank">21</span>
+                <button onclick="buttonClicked()">Select</button>
             </a>
 
             <a class="card rank-?">
                 <span class="rank">?</span>
+                <button onclick="buttonClicked()">Select</button>
             </a>
 
             <a class="card rank-infinity">
                 <span class="rank">&#8734;</span>
+                <button onclick="buttonClicked()">Select</button>
             </a>
         </div>
     </div>
+    <script src="/socket.io/socket.io.js"></script>
+       <script>
+         var socket = io();
+         socket.vote = "";
+
+         function buttonClicked(){
+           socket.emit('clicked');
+         }
+
+         //when we receive buttonUpdate, do this
+         socket.on('buttonUpdate', function(data){
+           document.getElementById("buttonCount").innerHTML = 'This issue has been assigned' + data + ' storypoints.';
+         });
+      </script>
 </body>
 
 </html>
 <script src="/socket.io/socket.io.js"></script>
 <script>
+  var socket = io();
+  socket.vote = "";
+
+  function buttonClicked(){
+    socket.emit('clicked');
+}
+
+//when we receive buttonUpdate, do this
+socket.on('buttonUpdate', function(data){
+  document.getElementById("buttonCount").innerHTML = 'This issue has been assigned' + data + ' storypoints.';
+});
     //create a new socket room on each page load
     //var code,name,type;
     var name, code, type;
@@ -189,7 +223,7 @@
             //adds code to be more readable by SM
             var node = document.createElement("text");
             node.style.color = '#44bfad';
-            node.style.fontSize = 'larger'; //end 
+            node.style.fontSize = 'larger'; //end
             var nodeElem = document.createTextNode(socket.code);
 
             node.appendChild(nodeElem);
@@ -222,7 +256,7 @@
         line-height: .1vw;
         padding: 2vw;
     }
-    
+
     #joinText {
         margin: auto;
         top: 10%;
@@ -230,7 +264,7 @@
         left: 15%;
         font-size: 2vw;
     }
-    
+
     #waitingText {
         margin: auto;
         top: 10%;
@@ -238,7 +272,7 @@
         left: 25%;
         font-size: 2vw;
     }
-    
+
     #container {
         background-color: rgb(24, 23, 23);
         display: block;
@@ -249,7 +283,7 @@
         width: 100%;
         height: 70%;
     }
-    
+
     #load {
         border: 16px solid #f3f3f3;
         /* Light grey */
@@ -265,7 +299,7 @@
         position: fixed;
         z-index: 3;
     }
-    
+
     @keyframes spin {
         0% {
             transform: rotate(0deg);
@@ -274,11 +308,11 @@
             transform: rotate(360deg);
         }
     }
-    
+
     .right {
         float: right;
     }
-    
+
     #userlist {
         list-style-type: none;
         line-height: 6vh;
