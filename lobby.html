@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="css/cards.css" />
 </head>
 
-<body onunload='disconnect()'>
+<body>
     <!--Heading-->
     <h2 id='waitingText' style="visibility:visible">Waiting for Scrum Master to start the session...</h2>
     <div id='load' style="visibility:visible"></div>
@@ -127,8 +127,8 @@
         document.getElementById('cardsDiv').style.visibility = 'visible';
     });
     socket.on('reconnect', () => {
-        const data = {name: name, code: code, }
-        socket.emit('reconnect', )
+        const data = {name: name, code: code, };
+        socket.emit('reconnect', data );
     });
 
 
@@ -169,14 +169,8 @@
         };
         socket.emit("addRoom", data, console.log('done with addRoom'));
     }
+    function onReconnect(){
 
-    function disconnect() {
-        data = {
-            name: name,
-            type: type,
-            code: code
-        };
-        socket.emit('dc', data);
     }
 
     function issueButtonClick() {
