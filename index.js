@@ -64,7 +64,42 @@ io.sockets.use((socket, next) => {//idk what this does
   next();
 });
 
+	//when the server receives clicked message, do this
+    client.on('clicked', function(data) {
+    	  cardNumbers=[1,2,3,5,8,13,21,"unsure", "infinity"];
+
+        if(socket.vote==1){
+           io.emit('clicked',cardNumbers[0]);
+        }
+        if(socket.vote==2){
+          io.emit('clicked',cardNumbers[1]);
+        }
+        if(socket.vote==3){
+          io.emit('clicked',cardNumbers[2]);
+        }
+        if(socket.vote==5){
+          io.emit('clicked',cardNumbers[3]);
+        }
+        if(socket.vote==8){
+          io.emit('clicked',cardNumbers[4]);
+        }
+        if(socket.vote==13){
+          io.emit('clicked', cardNumbers[5]);
+        }
+        if(socket.vote==21){
+          io.emit('clicked', cardNumbers[6]);
+        }
+        if(socket.vote==0){
+          io.emit('clicked', cardNumbers[7]);
+        }
+        if(socket.vote==100){
+          io.emit('clicked', cardNumbers[8]);
+        }
+    });
+});
+
 function onConnect(socket) {
+    socket.emit('hello', 'hello');
     console.log(socket.id);
     socket.on("joinRoom", (data) => {
         console.log('recieved joinRoom');
@@ -74,16 +109,13 @@ function onConnect(socket) {
         console.log('add room recieved');
         addRoom(socket, data);
     });
+    socket.on('hi', (data) => {
+        console.log(data);
+    });
     socket.on('issue', (data) => {
         console.log('recieved issue: ' + data.issue + ' code: ' + data.code);
         io.in(data.code).emit('issue', data.issue);
 
-    });
-    socket.on('start', (data) => {
-        console.log(socket.id);
-        if (data.type === 'Scrum Master') {
-            io.in(data.code).emit('start');
-        }
     });
 
     socket.on("disconnect", () => console.log('user disconnected'));

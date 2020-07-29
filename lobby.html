@@ -41,47 +41,47 @@
         <div style='visibility:hidden' id='cardsDiv'>
             <a class="card rank-1">
                 <span class="rank">1</span>
-                <button onclick="buttonClicked()">Select</button>
+                <button onclick=buttonClicked(1)>Select</button>
             </a>
 
             <a class="card rank-2">
                 <span class="rank">2</span>
-                <button onclick="buttonClicked()">Select</button>
+                <button onclick=buttonClicked(2)>Select</button>
             </a>
 
             <a class="card rank-3">
                 <span class="rank">3</span>
-                <button onclick="buttonClicked()">Select</button>
+                <button onclick=buttonClicked(3)>Select</button>
             </a>
 
             <a class="card rank-5">
                 <span class="rank">5</span>
-                <button onclick="buttonClicked()">Select</button>
+                <button onclick=buttonClicked(5)>Select</button>
             </a>
 
             <a class="card rank-8">
                 <span class="rank">8</span>
-                <button onclick="buttonClicked()">Select</button>
+                <button onclick=buttonClicked(8)>Select</button>
             </a>
 
             <a class="card rank-13">
                 <span class="rank">13</span>
-                <button onclick="buttonClicked()">Select</button>
+                <button onclick=buttonClicked(13)>Select</button>
             </a>
 
             <a class="card rank-21">
                 <span class="rank">21</span>
-                <button onclick="buttonClicked()">Select</button>
+                <button onclick=buttonClicked(21)>Select</button>
             </a>
 
             <a class="card rank-?">
                 <span class="rank">?</span>
-                <button onclick="buttonClicked()">Select</button>
+                <button onclick=buttonClicked(0)>Select</button>
             </a>
 
             <a class="card rank-infinity">
                 <span class="rank">&#8734;</span>
-                <button onclick="buttonClicked()">Select</button>
+                <button onclick=buttonClicked(100)>Select</button>
             </a>
         </div>
     </div>
@@ -95,13 +95,14 @@
     var name, code, type;
     const socket = io();
     var playerCount = 0;
+    var num = 0;
 
     socket.on('connect', () => {
         console.log('connect event');
         setUp();
         console.log('after setup : code' + code);
     });
-    
+
     socket.on('timerEnd', function(data){//will be recieved when the timer ends
         document.getElementById("buttonCount").innerHTML = 'This issue has been assigned' + data + ' storypoints.';
     });
@@ -146,9 +147,9 @@
             document.getElementById('userList').appendChild(node);
         }
     }
-    function buttonClicked(vote){
-        socket.vote = vote;
-    }   
+    function buttonClicked(num){
+        socket.vote = num;
+    }
     function generateCode(socket) {//dont need html requests anymore hopefully
         const oldCode = socket.code;
         socket.code = "";
