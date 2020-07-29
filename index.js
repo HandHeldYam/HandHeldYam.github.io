@@ -10,7 +10,6 @@ app.use(express.json({ limit: '1mb' }));
 var io = require('socket.io')(server);
 
 var validRoomCodes = new Map();
-var codeUsers = Array(5);//5 rooms
 var issues = [];
 //creates array for card values
 var cardNumbers = Array(9);//9 card values in planning poker
@@ -65,38 +64,37 @@ io.sockets.use((socket, next) => {//idk what this does
 });
 
 	//when the server receives clicked message, do this
-    client.on('clicked', function(data) {
-    	  cardNumbers=[1,2,3,5,8,13,21,"unsure", "infinity"];
+    // client.on('clicked', function(data) {
+    // 	  cardNumbers=[1,2,3,5,8,13,21,"unsure", "infinity"];
 
-        if(socket.vote==1){
-           io.emit('clicked',cardNumbers[0]);
-        }
-        if(socket.vote==2){
-          io.emit('clicked',cardNumbers[1]);
-        }
-        if(socket.vote==3){
-          io.emit('clicked',cardNumbers[2]);
-        }
-        if(socket.vote==5){
-          io.emit('clicked',cardNumbers[3]);
-        }
-        if(socket.vote==8){
-          io.emit('clicked',cardNumbers[4]);
-        }
-        if(socket.vote==13){
-          io.emit('clicked', cardNumbers[5]);
-        }
-        if(socket.vote==21){
-          io.emit('clicked', cardNumbers[6]);
-        }
-        if(socket.vote==0){
-          io.emit('clicked', cardNumbers[7]);
-        }
-        if(socket.vote==100){
-          io.emit('clicked', cardNumbers[8]);
-        }
-    });
-});
+    //     if(socket.vote==1){
+    //        io.emit('clicked',cardNumbers[0]);
+    //     }
+    //     if(socket.vote==2){
+    //       io.emit('clicked',cardNumbers[1]);
+    //     }
+    //     if(socket.vote==3){
+    //       io.emit('clicked',cardNumbers[2]);
+    //     }
+    //     if(socket.vote==5){
+    //       io.emit('clicked',cardNumbers[3]);
+    //     }
+    //     if(socket.vote==8){
+    //       io.emit('clicked',cardNumbers[4]);
+    //     }
+    //     if(socket.vote==13){
+    //       io.emit('clicked', cardNumbers[5]);
+    //     }
+    //     if(socket.vote==21){
+    //       io.emit('clicked', cardNumbers[6]);
+    //     }
+    //     if(socket.vote==0){
+    //       io.emit('clicked', cardNumbers[7]);
+    //     }
+    //     if(socket.vote==100){
+    //       io.emit('clicked', cardNumbers[8]);
+    //     }
+    // });
 
 function onConnect(socket) {
     socket.emit('hello', 'hello');
@@ -106,19 +104,41 @@ function onConnect(socket) {
         handleClient(data, socket);
     });
     socket.on('addRoom', (data) => {
-        console.log('add room recieved');
-        addRoom(socket, data);
-    });
-    socket.on('hi', (data) => {
-        console.log(data);
+        if (data.type === 'Scrum Master') {
+            addRoom(socket, data);
+        }
     });
     socket.on('issue', (data) => {
         console.log('recieved issue: ' + data.issue + ' code: ' + data.code);
         io.in(data.code).emit('issue', data.issue);
 
     });
+    socket.on('start', (data) => {
+        if (data.type === 'Scrum Master') {
+            io.in(data.code).emit('start');
+            
+        }
+    });
+    socket.on('reconnection', () => {
+        socket.emit('giveData');
+    });
+    socket.on('imBack', (data) => {//client gives name, type, and code
+        
+    });
+    socket.on("disconnect", () => {
+        let roomToBUpdated;
+        for (const [key, value] of validRoomCodes.entries()) {
+            for (var i = 0; i < value.users.length; i++){
+                if (value.users[i].id === socket.id) {
+                    roomToBUpdated = key;
+                    value.users.splice(i, 1);
+                }
+            }
+        }
+        var users = validRoomCodes.get(roomToBUpdated).users;
+        io.in(roomToBUpdated).emit('displayName', { users: users, code: roomToBUpdated });
 
-    socket.on("disconnect", () => console.log('user disconnected'));
+    });
 }
 
 function handleClient(data, socket) {
@@ -126,98 +146,23 @@ function handleClient(data, socket) {
 
     if (onCorrectRoomCode(data.code)) {
         socket.join(data.code);//this is what joins socket to room: data.code
-        codeUsers[data.code].push({name: data.name, type: data.type, id: socket.id});
-        console.log('Users connected to ' + data.code + ': ' + codeUsers[data.code].length);
-        console.log('Socket connected props: Name: ' + data.name + ' Type: ' + data.type + 'ID: ' + socket.id);
-        let users = codeUsers[data.code];
-        io.in(data.code).emit('displayName', { users: users, code: data.code});//not working
+        validRoomCodes.get(data.code).users.push({ name: data.name, type: data.type, id: socket.id });//add the socket to the list of users
+        let users = validRoomCodes.get(data.code).users; // get the list of users 
+        io.in(data.code).emit('displayName', { users: users, code: data.code });//tell users to display
+        
     }
 }
-
-
-function getSocket(socketId, room = '0') {
-    if (room !== '0') {
-        io.of('/').in(room).clients((error, socketIds) => {
-            if (error) throw error;
-            socketIds.forEach(socketId => {
-                if (socketIds === socketId) {
-                    return io.of('/').sockets[socketId];
-                }
-            });
-        })
-    }
-    validRoomCodes.forEach(key => {
-        io.of('/').in(key).clients((error, socketIds) => {
-            if (error) throw error;
-            socketIds.forEach(socketId => {
-                if (socketIds === socketId) {
-                    return io.of('/').sockets[socketId];
-                }
-            })
-        });
-    });
-}
-// function onDisconnect(socket) { //to do .......................
-//     console.log('User disconnected');
-//     console.log(socket);
-
-// }
 
 function onCorrectRoomCode(code) {
-    return validRoomCodes.has(code) || codeUsers.includes(code);
+    console.log(code);
+    return validRoomCodes.has(code);
 }
 
-    // data {
-    //     oldcode: oldCode,
-    //     code: code,
-    //     type:type,
-    //     name: name
-    // }
 function addRoom(socket, data) {
-    console.log('hit addROom');
-    let rooms = Object.keys(socket.rooms);
-    console.log("rooms: " + socket.rooms); // [ <socket.id>, 'room 237' ]
-    if (data.type === 'Scrum Master') {
-        handleCodes(data, socket); //need to have this return the new room with all connected clients
-        rooms = Object.keys(socket.rooms);
-        console.log("rooms: " + rooms); // [ <socket.id>, 'room 237' ]
-    }
-}
-// data {
-//     oldcode: oldCode,
-//     code: code,
-//     type:type,
-//     name: name
-// }
-function handleCodes(data, socket) {
-    if (codeUsers.includes(data.oldcode) && !validRoomCodes.has(data.code)) {//if this isnt SM first room
-        console.log('OPTION 1---------------------------------');
-        validRoomCodes.set(data.code, data.name);
-        codeUsers[data.code] = []; //create the room
 
-        io.of('/').in(data.oldcode).clients((error, socketIds) => {
-            if (error) throw error;
-            socketIds.forEach(socketId => {
-                io.sockets.sockets[socketId].leave(data.oldcode);
-                console.log('socket id: ' + socketId + ' leaving room: ' + data.oldcode);
-                io.sockets.sockets[socketId].emit('joinRoom', data.code);
-                console.log('socket id: ' + socketId + ' joined room: ' + data.code);
-            });
-            console.log('moved user from '+ data.oldcode + " to "+ data.code);
-        });
-
-
-        validRoomCodes.delete(data.oldcode);
-        codeUsers.splice(data.oldcode);
-
-    } else if (!validRoomCodes.has(data.code)) {
-         console.log('OPTION 2---------------------------------');
-        validRoomCodes.set(data.code, data.name);
-        codeUsers[data.code] = []; //create the room
-
+    if (!validRoomCodes.has(data.code)) {//if there are no rooms with code: data.code
+        validRoomCodes.set(data.code, { users: [], name: data.name });
         socket.emit('joinRoom', data.code);
-    } else if (validRoomCodes.has(data.code)) {
-        console.log("trying to make 2 of the same codes server crashing now ");
     }
 
 }

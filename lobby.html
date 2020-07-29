@@ -126,11 +126,14 @@
     });
     socket.on('start', () => {
         document.getElementById('cardsDiv').style.visibility = 'visible';
+        //emit the event to start the timer
     });
-    socket.on('reconnect', () => {
-        const data = {name: name, code: code, };
-        socket.emit('reconnect', data );
-    });
+    function onTimeout(){
+        socket.emit('timerEnd',code, type, name, vote);
+    }
+    socket.on('giveData', () => {
+        socket.emit('imBack', {name: name, code: code, type: type});
+    })
 
 
     function displayName(data) {
