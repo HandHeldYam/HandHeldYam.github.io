@@ -13,8 +13,11 @@
 }
 
 .card:hover {
+    bottom: 2em;
+}
+
+.card:focus {
     bottom: 1em;
-    border-color: teal;
 }
 
 .card .rank {

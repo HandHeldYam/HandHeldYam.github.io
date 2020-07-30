@@ -9,8 +9,10 @@ app.use(express.json({ limit: '1mb' }));
 
 var io = require('socket.io')(server);
 
-userVotesPerRoom=[[]];
-userVotesPerRoom.push(code).push({name, vote, type});
+userVotesPerRoom = [
+    []
+];
+userVotesPerRoom.push(code).push({ name, vote, type });
 
 var validRoomCodes = new Map();
 var issues = [];
@@ -98,16 +100,14 @@ io.sockets.use((socket, next) => { //idk what this does
 //     }
 // });
 
-function collectData(){
-  for(vote in userVotesPerRoom){
-    if(vote == 0 ){
-      console.log('unsure');
+function collectData() {
+    for (vote in userVotesPerRoom) {
+        if (vote == 0) {
+            console.log('unsure');
+        } else if (vote == 100) {
+            console.log('infinity');
+        } else console.log(vote);
     }
-    else if(vote == 100){
-      console.log('infinity');
-    }
-    else console.log(vote);
-  }
 }
 
 function onConnect(socket) {
@@ -119,14 +119,14 @@ function onConnect(socket) {
     });
 
     socket.on('timerEnd', (data) => {
-      if(userVotesPerRoom.includes(data.code)){}
+        if (userVotesPerRoom.includes(data.code)) {}
 
-      userVotesPerRoom[data.code].push[{
-        name:data.name,
-        vote:data.vote,
-        type:data.type
-      }];
-      console.log("votes recieved");
+        userVotesPerRoom[data.code].push[{
+            name: data.name,
+            vote: data.vote,
+            type: data.type
+        }];
+        console.log("votes recieved");
 
     });
     socket.on('addRoom', (data) => {
@@ -139,22 +139,21 @@ function onConnect(socket) {
         io.in(data.code).emit('issue', data.issue);
 
     });
-    socket.on('start' , (data) => {
-      //since only scrum master can start timer checks to see if type if SM
-      if(data.type == 'Scrum Master') {
-        io.in(data.code).emit('Start');
-      }
+    socket.on('start', (data) => {
+        //since only scrum master can start timer checks to see if type if SM
+        if (data.type == 'Scrum Master') {
+            io.in(data.code).emit('Start');
+        }
 
     });
 
-    socket.on('end' , (data) => {
+    socket.on('end', (data) => {
 
         io.in(data.code).emit('timerEnd');
 
 
     });
 
-    });
     socket.on('reconnection', () => {
         socket.emit('giveData');
     });
