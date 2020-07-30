@@ -9,11 +9,14 @@ app.use(express.json({ limit: '1mb' }));
 
 var io = require('socket.io')(server);
 
+userVotesPerRoom=[[]];
+userVotesPerRoom.push(code).push({name, vote, type});
+
 var validRoomCodes = new Map();
 var codeUsers = Array(5);//5 rooms
 var issues = [];
 //creates array for card values
-var cardNumbers = Array(9);//9 card values in planning poker
+//var cardNumbers = Array(9);//9 card values in planning poker
 
 server.listen(8080, () => console.log('Listening on Port 8080'));
 
@@ -64,9 +67,7 @@ io.sockets.use((socket, next) => {//idk what this does
   next();
 });
 
-	//when the server receives clicked message, do this
-    client.on('clicked', function(data) {
-    	  cardNumbers=[1,2,3,5,8,13,21,"unsure", "infinity"];
+    	  /*cardNumbers=[1,2,3,5,8,13,21,"unsure", "infinity"];
 
         if(socket.vote==1){
            io.emit('clicked',cardNumbers[0]);
@@ -95,8 +96,20 @@ io.sockets.use((socket, next) => {//idk what this does
         if(socket.vote==100){
           io.emit('clicked', cardNumbers[8]);
         }
-    });
+    });*/
 });
+
+function collectData(){
+  for(vote in userVotesPerRoom){
+    if(vote == 0 ){
+      console.log('unsure');
+    }
+    else if(vote == 100){
+      console.log('infinity');
+    }
+    else console.log(vote);
+  }
+}
 
 function onConnect(socket) {
     socket.emit('hello', 'hello');
@@ -104,6 +117,18 @@ function onConnect(socket) {
     socket.on("joinRoom", (data) => {
         console.log('recieved joinRoom');
         handleClient(data, socket);
+    });
+
+    socket.on('recieve vote', (data) => {
+      if(userVotesPerRoom.includes(data.code)){}
+
+      userVotesPerRoom[data.code].push[{
+        name:data.name,
+        vote:data.vote,
+        type:data.type
+      }];
+      console.log("votes recieved");
+
     });
     socket.on('addRoom', (data) => {
         console.log('add room recieved');
@@ -115,6 +140,13 @@ function onConnect(socket) {
     socket.on('issue', (data) => {
         console.log('recieved issue: ' + data.issue + ' code: ' + data.code);
         io.in(data.code).emit('issue', data.issue);
+
+    });
+    socket.on('start' , (data) => {
+      //since only scrum master can start timer checks to see if type if SM
+      if(data.type == 'Scrum Master') {
+        io.in(data.code).emit('start');
+      }
 
     });
 
