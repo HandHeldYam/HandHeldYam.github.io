@@ -29,6 +29,7 @@
         <p id='type'>Type: </p>
         <p id='roomCodeDisplay'>Code: </p>
     </div>
+    <p id="demo"></p>
 
 
     <!-- <form>
@@ -163,6 +164,37 @@
     function buttonClicked(num) {
         socket.vote = num;
     }
+// not sure if this function works correctly, I might have to tweak it a little 
+    function Timer() {
+      // Set the timer to 5 min
+      var t = new Date();
+    var  end = t.setSeconds(t.getSeconds() + 300);
+
+// Update the count down every 1 second
+var x = setInterval(function() {
+
+  // start time
+  var start = new Date().getTime();
+
+  // Find the distance between now and the count down date
+  var timeLeft = end - start;
+
+  // Time calculations for minutes andseconds
+  var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+  // Display the result in the element with id="demo"
+  document.getElementById("demo").innerHTML =
+  minutes + "m " + seconds + "s ";
+
+  // If the count down is finished
+  if (timeLeft < 0) {
+    clearInterval(x);
+    document.getElementById("demo").innerHTML = "TIME'S UP";
+  }
+}, 1000);
+
+    }
 
     function generateCode(socket) { //dont need html requests anymore hopefully
         const oldCode = socket.code;
@@ -279,7 +311,7 @@
         line-height: .1vw;
         padding: 2vw;
     }
-    
+
     #headerText {
         margin: auto;
         top: 5%;
@@ -287,7 +319,7 @@
         text-align: center;
         font-size: 2vw;
     }
-    
+
     #container {
         background-color: rgb(24, 23, 23);
         display: block;
@@ -298,7 +330,7 @@
         width: 100%;
         height: 75%;
     }
-    
+
     #load {
         border: 16px solid #f3f3f3;
         /* Light grey */
@@ -314,7 +346,7 @@
         position: fixed;
         z-index: 3;
     }
-    
+
     @keyframes spin {
         0% {
             transform: rotate(0deg);
@@ -323,18 +355,18 @@
             transform: rotate(360deg);
         }
     }
-    
+
     .right {
         float: right;
     }
-    
+
     #userlist {
         list-style-type: none;
         line-height: 6vh;
         font-size: larger;
         margin: 2vw;
     }
-    
+
     #gameInfo {
         background-color: rgb(24, 23, 23);
         display: flex;
@@ -347,7 +379,7 @@
         width: 100%;
         height: 5%;
     }
-    
+
     #gameInfo #IssueIDDiv {
         flex-grow: 0.5;
     }

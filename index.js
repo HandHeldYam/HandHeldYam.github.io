@@ -118,7 +118,7 @@ function onConnect(socket) {
         handleClient(data, socket);
     });
 
-    socket.on('recieve vote', (data) => {
+    socket.on('timerEnd', (data) => {
       if(userVotesPerRoom.includes(data.code)){}
 
       userVotesPerRoom[data.code].push[{
@@ -142,12 +142,18 @@ function onConnect(socket) {
     socket.on('start' , (data) => {
       //since only scrum master can start timer checks to see if type if SM
       if(data.type == 'Scrum Master') {
-        io.in(data.code).emit('start');
+        io.in(data.code).emit('Start');
       }
 
     });
 
-        }
+    socket.on('end' , (data) => {
+
+        io.in(data.code).emit('timerEnd');
+
+
+    });
+
     });
     socket.on('reconnection', () => {
         socket.emit('giveData');
