@@ -2,18 +2,12 @@ const express = require('express');
 const app = express();
 const server = require('http').Server(app);
 app.use(express.static('public')); //listens to files in the
-let numClients = -1; //sm doesnt count as player but i have no idea if this logic is right lol
-//"public" folder
-//app.use('public', express.static(__dirname));
+
 app.use(express.json({ limit: '1mb' }));
 
 var io = require('socket.io')(server);
 
-userVotesPerRoom = [
-    []
-];
-userVotesPerRoom.push(code).push({ name, vote, type });
-
+var votes = new Map();
 var validRoomCodes = new Map();
 var issues = [];
 //creates array for card values
@@ -111,8 +105,6 @@ function collectData() {
 }
 
 function onConnect(socket) {
-    socket.emit('hello', 'hello');
-    console.log(socket.id);
     socket.on("joinRoom", (data) => {
         console.log('recieved joinRoom');
         handleClient(data, socket);
@@ -136,22 +128,24 @@ function onConnect(socket) {
     });
     socket.on('issue', (data) => {
         console.log('recieved issue: ' + data.issue + ' code: ' + data.code);
+        console.log(votes.get(data.code));
+        votes.get(data.code).push({issue: data.issue, votes:[]});
+        console.log(votes.get(data.code));
+        console.log('end of issue')
         io.in(data.code).emit('issue', data.issue);
 
     });
-    socket.on('start', (data) => {
-        //since only scrum master can start timer checks to see if type if SM
+    socket.on('start' , (data) => {
+      //since only scrum master can start timer checks to see if type if SM
         if (data.type == 'Scrum Master') {
-            io.in(data.code).emit('Start');
+            validRoomCodes.get(data.code).hasStarted = true;//to deal with users joining mid game
+            io.in(data.code).emit('start');
         }
 
     });
 
-    socket.on('end', (data) => {
-
+    socket.on('end' , (data) => {
         io.in(data.code).emit('timerEnd');
-
-
     });
 
     socket.on('reconnection', () => {
@@ -160,22 +154,52 @@ function onConnect(socket) {
     socket.on('imBack', (data) => { //client gives name, type, and code
 
     });
+    socket.on('giveVote', code => {
+        io.in(code).emit('giveVote');
+    });
+    //type code and vote
+    socket.on('vote', (data) => {
+        console.log(data);
+        let theVotes = votes.get(data.code).find(elem => elem.issue == data.issue);
+        theVotes.votes.push({ type: data.type, vote: data.vote });
+        console.log(theVotes);
+            //.votes.push({ type: data.type, vote: data.vote });
+        console.log(votes);
+        console.log('end of vote');
+    });
+    socket.on('gameOver', code => {
+        printResults(code);
+    })
     socket.on("disconnect", () => {
-        let roomToBUpdated;
-        for (const [key, value] of validRoomCodes.entries()) {
-            for (var i = 0; i < value.users.length; i++) {
-                if (value.users[i].id === socket.id) {
-                    roomToBUpdated = key;
-                    value.users.splice(i, 1);
+        let roomToBUpdated; //save the room code
+        for (const [key, value] of validRoomCodes.entries()) { //loop through rooms to find the dc user
+            for (var i = 0; i < value.users.length; i++) {//when room is found loop through users in room
+                if (value.users[i].id === socket.id) {//if the DC'd socked's id matches a user in the room
+                    roomToBUpdated = key;//save the room code
+                    value.users.splice(i, 1);//remove the user
                 }
             }
         }
-        var users = validRoomCodes.get(roomToBUpdated).users;
+        var users = validRoomCodes.get(roomToBUpdated).users;//get the correct room user list
         io.in(roomToBUpdated).emit('displayName', { users: users, code: roomToBUpdated });
 
     });
 }
 
+function printResults(room = '0'){//room acts as a default variable if they dont enter anything
+    if(room == '0'){
+        for(const [key,value] of votes.entries()){
+            console.log('IN ROOM: ' + key);
+            console.log('ISSUES: ' + value.issue);
+            console.log('VOTES: ' + value.votes);
+        }
+        return;
+    }
+    let val = votes.get(room);
+    console.log('ISSUES IN ROOM ' + val.issues);
+    console.log(val.issues);
+    console.log('VOTES: ' + val.votes);
+}
 function handleClient(data, socket) {
     console.log('handling client ' + socket.id);
 
@@ -196,7 +220,9 @@ function onCorrectRoomCode(code) {
 function addRoom(socket, data) {
 
     if (!validRoomCodes.has(data.code)) { //if there are no rooms with code: data.code
-        validRoomCodes.set(data.code, { users: [], name: data.name });
+        validRoomCodes.set(data.code, { users: [], name: data.name, hasStarted: false });
+        votes.set(data.code, []);
+        console.log(votes);
         socket.emit('joinRoom', data.code);
     }
 

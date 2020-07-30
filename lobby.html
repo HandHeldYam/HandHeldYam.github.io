@@ -19,7 +19,7 @@
             <input style='width:50%' style='justify-content:flex-end' type='text' id='issueID'>
             <button id='issueIDButton' onclick='issueButtonClick()'> Start Voting </button>
             <p> </p>
-            <button id='endVoteButton' onclick='endVoteClcik()' style='visibility: hidden;'> End Voting  </button>
+            <button id='endVoteButton' onclick='endVoteClick()' style='visibility: hidden;'> End Voting  </button>
         </div>
         <div>
             <span id='startText'>Everyone's in? --></span>
@@ -97,7 +97,7 @@
 <script>
     //create a new socket room on each page load
     //var code,name,type;
-    var name, code, type;
+    var name, code, type, issue;
     const socket = io();
     var playerCount = 0;
     var num = 0;
@@ -112,6 +112,7 @@
         document.getElementById("buttonCount").innerHTML = 'This issue has been assigned' + data + ' storypoints.';
     });
     socket.on('issue', issueId => {
+        issue = issueId;
         document.getElementById('headerText').innerHTML = 'How many story points is ' + issueId + ' worth?';
     });
     socket.on('joinRoom', (data) => {
@@ -143,9 +144,11 @@
             code: code,
             type: type
         });
-    })
-
-
+    });
+    socket.on('giveVote', () => {
+        console.log('this is type: ' +socket.type);
+        socket.emit('vote', {type: socket.type, code: socket.code, vote: vote, issue: issue});
+    });
 
     function displayName(data) {
         console.log('displayName event');
@@ -164,6 +167,7 @@
 
     function buttonClicked(num) {
         socket.vote = num;
+        vote = num;
     }
 // not sure if this function works correctly, I might have to tweak it a little 
     function Timer() {
@@ -196,7 +200,9 @@ var x = setInterval(function() {
 }, 1000);
 
     }
-
+    function endVoteClick() {
+        socket.emit('giveVote', code);
+    }
     function generateCode(socket) { //dont need html requests anymore hopefully
         const oldCode = socket.code;
         socket.code = "";
@@ -236,7 +242,7 @@ var x = setInterval(function() {
         if (issueId === "") {
             alert("Please enter an Issue ID")
         } {
-            let issues = issueId.toString().split(' ');
+            let issues = issueId.toString();
             document.getElementById('headerText').innerHTML = 'How many story points is ' + issueId + ' worth?';
             console.log('emitting event: issue' + code);
             socket.emit('issue', {
@@ -260,12 +266,16 @@ var x = setInterval(function() {
         } else {
             document.getElementById('startButton').innerHTML = 'End Session';
             document.getElementById('startText').style.visibility = 'hidden';
+            document.getElementById('startButton').onclick = onEndGame();
             socket.emit('start', {
                 name: socket.name,
                 type: socket.type,
                 code: socket.code
             });
         }
+    }
+    function onEndGame(){
+        socket.emit('gameOver', code);
     }
 
     function setUp() {
