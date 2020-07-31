@@ -15,15 +15,18 @@
     <div id='gameInfo'>
         <label id="numClients">Users: 0</label>
         <div style='display:flex;visibility:hidden' id='issueIDDiv' class='SMO'>
-            <p id='EnterIssueText' style='justify-content:flex-start; margin-right:5px;'>Enter Issue ID:</p>
+            <p id='EnterIssueText' style='justify-content:flex-start; margin-right:7px;'>Enter Issue ID:</p>
             <input style='width:50%' style='justify-content:flex-end' type='text' id='issueID'>
             <button id='issueIDButton' onclick='issueButtonClick()'> Start Voting </button>
             <p> </p>
+            <button style='visibility:hidden' id='getVotes' onclick='getVotes()'>Vote Totals</button>
             <button id='endVoteButton' onclick='endVoteClick()' style='visibility: hidden;'> End Voting  </button>
         </div>
         <div>
-            <span id='startText'>Everyone's in? --></span>
-            <button style='visibility:hidden' id='startButton' onclick='startGame(socket)'>Start Session</button>
+            <span id='startText'>Everyone's in? </span>
+            <button style='visibility:hidden' id='startButton'
+            onclick='startGame(socket)'>Start Session</button>
+            <a download="info.txt" id="downloadlink" style="display: none">Download</a>  
         </div>
     </div>
     <div id='info'>
@@ -43,6 +46,10 @@
     <div id='container'>
         <ul style="display: table-column" id="userList">
         </ul>
+        <div style='visibility:hidden' id='metrics'>
+            <p id='avg'>Average Vote: </p>
+            <p id='outlier'>Outliers:</p>
+        </div>
         <div style='visibility:hidden' id='cardsDiv'>
             <a class="card rank-1">
                 <span class="rank">1</span>
@@ -92,7 +99,7 @@
     </div>
 </body>
 
-</html>
+
 <script src="/socket.io/socket.io.js"></script>
 <script>
     //create a new socket room on each page load
@@ -113,7 +120,10 @@
     });
     socket.on('issue', issueId => {
         issue = issueId;
-        document.getElementById('headerText').innerHTML = 'How many story points is ' + issueId + ' worth?';
+        document.getElementById('headerText').innerHTML = 'How many story points is ' + issueId + ' worth';
+        if(socket.type !== 'Scrum Master'){
+            document.getElementById('cardsDiv').style.visibility = 'visible';
+        }
     });
     socket.on('joinRoom', (data) => {
         console.log('joinRoom was recieved' + data);
@@ -131,8 +141,11 @@
         displayName(data);
     });
     socket.on('start', () => {
-        document.getElementById('cardsDiv').style.visibility = 'visible';
+        
         //emit the event to start the timer
+    });
+    socket.on('getVotes', votes => {
+        getVotesInTextFile(votes);
     });
 
     function onTimeout() {
@@ -146,8 +159,26 @@
         });
     });
     socket.on('giveVote', () => {
-        console.log('this is type: ' +socket.type);
-        socket.emit('vote', {type: socket.type, code: socket.code, vote: vote, issue: issue});
+        if(socket.type !== 'Scrum Master'){
+        socket.emit('vote', {type: socket.type, code: socket.code, vote: vote, issue: issue, name: socket.name});
+        }
+    });
+    socket.on('gameOverData', (data) => {
+        var output = '';
+        data.forEach(elem => {
+            output += 'Issue: ' + elem.issue + '\n';
+            elem.votes.forEach(val => {
+                output +='  Name: ' + val.name + ' Type: ' + val.type + ' Vote: ' + val.vote + '\n';
+            });
+            output +='\n';
+        });
+        makeFileWithString(output);
+    });
+    socket.on('gameOver', () => {
+        document.getElementById('headerText').innerHTML = 'Game Over!';
+        document.getElementById('cardsDiv').style.visibility = 'hidden';
+        document.getElementById('issueIDButton').style.visibility = 'hidden';
+        document.getElementById('getVotes').style.visibility = 'hidden';
     });
 
     function displayName(data) {
@@ -169,44 +200,16 @@
         socket.vote = num;
         vote = num;
     }
-// not sure if this function works correctly, I might have to tweak it a little 
-    function Timer() {
-      // Set the timer to 5 min
-      var t = new Date();
-    var  end = t.setSeconds(t.getSeconds() + 300);
 
-// Update the count down every 1 second
-var x = setInterval(function() {
-
-  // start time
-  var start = new Date().getTime();
-
-  // Find the distance between now and the count down date
-  var timeLeft = end - start;
-
-  // Time calculations for minutes andseconds
-  var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-  var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-  // Display the result in the element with id="demo"
-  document.getElementById("demo").innerHTML =
-  minutes + "m " + seconds + "s ";
-
-  // If the count down is finished
-  if (timeLeft < 0) {
-    clearInterval(x);
-    document.getElementById("demo").innerHTML = "TIME'S UP";
-  }
-}, 1000);
-
-    }
     function endVoteClick() {
         socket.emit('giveVote', code);
+        document.getElementById('issueIDButton').style.visibility = 'visible';
+        document.getElementById('endVoteButton').style.visibility = 'hidden';
+        document.getElementById('getVotes').style.visibility = 'visible';
     }
     function generateCode(socket) { //dont need html requests anymore hopefully
         const oldCode = socket.code;
         socket.code = "";
-        console.log('socket code before loop ' + socket.code);
         for (var i = 0; i < 4; i++) {
             socket.code += parseInt(Math.random() * 10);
         }
@@ -235,45 +238,41 @@ var x = setInterval(function() {
 
     function issueButtonClick() {
         document.getElementById('load').style.visibility = 'hidden';
-        document.getElementById('endVoteButton').style.visibility = 'visible';
         let issueId = document.getElementById('issueID').value;
-        console.log(issueId);
 
-        if (issueId === "") {
-            alert("Please enter an Issue ID")
-        } {
+        if (issueId.length < 1) {
+            var text = document.getElementById('headerText');  
+            text.style.color = '#ff8405db';
+            document.getElementById('headerText').innerHTML = 'Please Enter the issue ID of the ticket you would like to vote on below';   
+        } else {
             let issues = issueId.toString();
+            document.getElementById('headerText').style.color = '#FFF';
             document.getElementById('headerText').innerHTML = 'How many story points is ' + issueId + ' worth?';
             console.log('emitting event: issue' + code);
             socket.emit('issue', {
                 issue: issues,
                 code: code
             });
+            document.getElementById('endVoteButton').style.visibility = 'visible';
+            document.getElementById('issueIDButton').style.visibility = 'hidden';
+            document.getElementById('getVotes').style.visibility = 'hidden';
         }
 
         //have options to re type issue id and round up votes
     }
 
     function startGame() {
-        document.getElementById('cardsDiv').style.visibility = 'visible';
         document.getElementById('issueIDDiv').style.visibility = 'visible';
-        var status = document.getElementById('startButton').innerHTML;
-        if (status === 'End Session') {
-            alert('Session has ended');
-            // document.body.innerHTML = '';
-            //button back to main menu
-            //call analytics stuff here
-        } else {
-            document.getElementById('startButton').innerHTML = 'End Session';
-            document.getElementById('startText').style.visibility = 'hidden';
-            document.getElementById('startButton').onclick = onEndGame();
-            socket.emit('start', {
-                name: socket.name,
-                type: socket.type,
-                code: socket.code
-            });
-        }
+        document.getElementById('startButton').innerHTML = 'End Session';
+        document.getElementById('startText').style.visibility = 'hidden';
+        document.getElementById('startButton').onclick = onEndGame;
+        socket.emit('start', {
+            name: socket.name,
+            type: socket.type,
+            code: socket.code
+        });
     }
+    
     function onEndGame(){
         socket.emit('gameOver', code);
     }
@@ -316,6 +315,50 @@ var x = setInterval(function() {
         }
 
     };
+    function getVotes(){
+        socket.emit('getVotesByIssue', {code:code, issue:issue});
+    }
+    function getVotesInTextFile(votes){
+        const SM = 0; //represent the indecies for the voteArray array
+        const PRODUCT_TEAM = 1;
+        const BAPO = 2;
+        const GUEST = 3;
+        var voteArray = [];
+        var output = '';
+        let avg = 0;
+        votes.forEach(elem => {
+            voteArray.push(elem.vote);
+            avg += elem.vote;
+            output += 'Name: ' + elem.name + ' Type: ' + elem.type + ' Vote: ' + elem.vote + '\n';
+        });
+        avg /= voteArray.length;
+        console.log('The average vote: ' + avg);
+        console.log(voteArray);
+        document.getElementById('metrics').style.visibility = 'visible';
+        document.getElementById('avg').innerHTML = 'Average Vote: ' +avg;
+        document.getElementById('outlier').innerHtml = 'Biggest Outlier: ';
+
+    }
+    var textFile = null;
+    socket.on('getAllVotes', data => getAllVotesByRoom);
+    function makeFileWithString(data){
+        makeTextFile = function (text) {  
+            var data = new Blob([text], {type: 'text/plain'});  
+        
+            // If we are replacing a previously generated file we need to  
+            // manually revoke the object URL to avoid memory leaks.  
+            if (textFile !== null) {  
+            window.URL.revokeObjectURL(textFile);  
+            }  
+        
+            textFile = window.URL.createObjectURL(data);  
+        
+            return textFile;  
+        };  
+        var link = document.getElementById('downloadlink');  
+        link.href = makeTextFile(data);  
+        link.style.display = 'flex';  
+    }
 </script>
 
 <style>

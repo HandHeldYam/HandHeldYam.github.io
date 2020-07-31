@@ -1,3 +1,16 @@
+/*
+Server Side Code.
+
+@Date 07/31/2020
+
+@author Sammy Collins,
+@author Peter Kim,
+@Nicole Fitz,
+@Shwetha Radhakrishnan
+
+
+*/
+
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
@@ -61,66 +74,12 @@ io.sockets.use((socket, next) => { //idk what this does
     next();
 });
 
-//when the server receives clicked message, do this
-// client.on('clicked', function(data) {
-// 	  cardNumbers=[1,2,3,5,8,13,21,"unsure", "infinity"];
-
-//     if(socket.vote==1){
-//        io.emit('clicked',cardNumbers[0]);
-//     }
-//     if(socket.vote==2){
-//       io.emit('clicked',cardNumbers[1]);
-//     }
-//     if(socket.vote==3){
-//       io.emit('clicked',cardNumbers[2]);
-//     }
-//     if(socket.vote==5){
-//       io.emit('clicked',cardNumbers[3]);
-//     }
-//     if(socket.vote==8){
-//       io.emit('clicked',cardNumbers[4]);
-//     }
-//     if(socket.vote==13){
-//       io.emit('clicked', cardNumbers[5]);
-//     }
-//     if(socket.vote==21){
-//       io.emit('clicked', cardNumbers[6]);
-//     }
-//     if(socket.vote==0){
-//       io.emit('clicked', cardNumbers[7]);
-//     }
-//     if(socket.vote==100){
-//       io.emit('clicked', cardNumbers[8]);
-//     }
-// });
-
-function collectData() {
-    for (vote in userVotesPerRoom) {
-        if (vote == 0) {
-            console.log('unsure');
-        } else if (vote == 100) {
-            console.log('infinity');
-        } else console.log(vote);
-    }
-}
-
 function onConnect(socket) {
     socket.on("joinRoom", (data) => {
         console.log('recieved joinRoom');
         handleClient(data, socket);
     });
 
-    socket.on('timerEnd', (data) => {
-        if (userVotesPerRoom.includes(data.code)) {}
-
-        userVotesPerRoom[data.code].push[{
-            name: data.name,
-            vote: data.vote,
-            type: data.type
-        }];
-        console.log("votes recieved");
-
-    });
     socket.on('addRoom', (data) => {
         if (data.type === 'Scrum Master') {
             addRoom(socket, data);
@@ -159,17 +118,18 @@ function onConnect(socket) {
     });
     //type code and vote
     socket.on('vote', (data) => {
-        console.log(data);
         let theVotes = votes.get(data.code).find(elem => elem.issue == data.issue);
-        theVotes.votes.push({ type: data.type, vote: data.vote });
+        theVotes.votes.push({ type: data.type, vote: data.vote, name: data.name });
         console.log(theVotes);
-            //.votes.push({ type: data.type, vote: data.vote });
-        console.log(votes);
-        console.log('end of vote');
+    });
+    socket.on('getVotesByIssue', (data) => {
+        getVotes(socket, data.code, data.issue);
     });
     socket.on('gameOver', code => {
-        printResults(code);
-    })
+        let ret = votes.get(code);
+        socket.emit('gameOverData', ret);
+        io.in(code).emit('gameOver');
+    });
     socket.on("disconnect", () => {
         let roomToBUpdated; //save the room code
         for (const [key, value] of validRoomCodes.entries()) { //loop through rooms to find the dc user
@@ -180,12 +140,14 @@ function onConnect(socket) {
                 }
             }
         }
-        var users = validRoomCodes.get(roomToBUpdated).users;//get the correct room user list
-        io.in(roomToBUpdated).emit('displayName', { users: users, code: roomToBUpdated });
+        if (validRoomCodes.get(roomToBUpdated) !== undefined) {
+            var users = validRoomCodes.get(roomToBUpdated).users;//get the correct room user list
+            io.in(roomToBUpdated).emit('displayName', { users: users, code: roomToBUpdated });
+        }
 
     });
 }
-
+// track MODE median and average
 function printResults(room = '0'){//room acts as a default variable if they dont enter anything
     if(room == '0'){
         for(const [key,value] of votes.entries()){
@@ -213,7 +175,6 @@ function handleClient(data, socket) {
 }
 
 function onCorrectRoomCode(code) {
-    console.log(code);
     return validRoomCodes.has(code);
 }
 
@@ -222,8 +183,12 @@ function addRoom(socket, data) {
     if (!validRoomCodes.has(data.code)) { //if there are no rooms with code: data.code
         validRoomCodes.set(data.code, { users: [], name: data.name, hasStarted: false });
         votes.set(data.code, []);
-        console.log(votes);
         socket.emit('joinRoom', data.code);
     }
+
+}
+function getVotes(socket, roomCode, issue) {
+    var clientVotes = votes.get(roomCode).find(elem => elem.issue == issue).votes;
+    socket.emit('getVotes', clientVotes);
 
 }
