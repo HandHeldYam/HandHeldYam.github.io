@@ -2,13 +2,12 @@
 Server Side Code.
 
 @Date 07/31/2020
+@version 1.16
 
 @author Sammy Collins,
 @author Peter Kim,
-@Nicole Fitz,
-@Shwetha Radhakrishnan
-
-
+@author Nicole Fitz,
+@author Shwetha Radhakrishnan
 */
 
 const express = require('express');
@@ -66,14 +65,14 @@ app.post('/roomCodeApi', (req, res) => {
 //room code that users put in (not SM)
 
 
-
+//listen for any sockets connecting if one connects do onConnect(socket)
 io.sockets.on('connection', onConnect); //io.sockets = default namespace (/)
 
 io.sockets.use((socket, next) => { //idk what this does
 
     next();
 });
-
+//handle connected sockets
 function onConnect(socket) {
     socket.on("joinRoom", (data) => {
         console.log('recieved joinRoom');
@@ -86,11 +85,7 @@ function onConnect(socket) {
         }
     });
     socket.on('issue', (data) => {
-        console.log('recieved issue: ' + data.issue + ' code: ' + data.code);
-        console.log(votes.get(data.code));
         votes.get(data.code).push({issue: data.issue, votes:[]});
-        console.log(votes.get(data.code));
-        console.log('end of issue')
         io.in(data.code).emit('issue', data.issue);
 
     });
@@ -147,21 +142,12 @@ function onConnect(socket) {
 
     });
 }
-// track MODE median and average
-function printResults(room = '0'){//room acts as a default variable if they dont enter anything
-    if(room == '0'){
-        for(const [key,value] of votes.entries()){
-            console.log('IN ROOM: ' + key);
-            console.log('ISSUES: ' + value.issue);
-            console.log('VOTES: ' + value.votes);
-        }
-        return;
-    }
-    let val = votes.get(room);
-    console.log('ISSUES IN ROOM ' + val.issues);
-    console.log(val.issues);
-    console.log('VOTES: ' + val.votes);
-}
+/*
+    Joins a socket to a room.
+
+    @param socket the connected socket
+    @param data the data that socket sends (name, code, type)
+*/
 function handleClient(data, socket) {
     console.log('handling client ' + socket.id);
 
@@ -173,11 +159,20 @@ function handleClient(data, socket) {
 
     }
 }
+/*
+Checks if a room is in validRoomCodes
 
+@param code the room code to be checked
+*/
 function onCorrectRoomCode(code) {
     return validRoomCodes.has(code);
 }
-
+/*
+    Adds a room to the list of rooms we will be tracking and tells the connected
+    socket to join that room.
+    @param socket connected socket
+    @param data data from socket (code, name, type)
+*/
 function addRoom(socket, data) {
 
     if (!validRoomCodes.has(data.code)) { //if there are no rooms with code: data.code
@@ -187,6 +182,14 @@ function addRoom(socket, data) {
     }
 
 }
+/*
+Emits the event getVotes, with data containing everyone that has voted in a
+given room
+
+@param socket connected socket
+@param roomCode the room code that the socket gives
+@param issue the issue number to recieve the votes from
+*/
 function getVotes(socket, roomCode, issue) {
     var clientVotes = votes.get(roomCode).find(elem => elem.issue == issue).votes;
     socket.emit('getVotes', clientVotes);

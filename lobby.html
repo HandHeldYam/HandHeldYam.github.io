@@ -401,17 +401,11 @@
         link.href = makeTextFile(data);  
         link.style.display = 'flex';  
     }
-    function getMedian(arr){
-        arr.sort();
-        console.log(arr);
-        let len = Math.floor(arr.length/2);
-        if(arr.length === 1){
-            return arr[0] + '';
-        }
-        if(arr.length % 2 ===0){
-            return ((arr[len] + arr[len-1])/2).toString();
-        }
-        return arr[len] + '';
+    function getMedian(arr){//from w3resource:
+        const mid = Math.floor(arr.length / 2),
+        nums = [...arr].sort((a, b) => a - b);
+        return arr.length % 2 !== 0 ? nums[mid] : (nums[mid - 1] + nums[mid]) / 2;
+
     }
 </script>
 
