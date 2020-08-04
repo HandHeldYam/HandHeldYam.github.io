@@ -26,7 +26,8 @@
             <span id='startText'>Everyone's in? </span>
             <button style='visibility:hidden' id='startButton'
             onclick='startGame(socket)'>Start Session</button>
-            <a download="info.txt" id="downloadlink" style="display: none">Download</a>  
+            <a download="info.txt" id="downloadlink" style="display:
+            none">Download Results</a>  
         </div>
     </div>
     <div id='info'>
@@ -240,6 +241,7 @@
 
     function issueButtonClick() {
         document.getElementById('load').style.visibility = 'hidden';
+        document.getElementById('metrics').style.visibility = 'hidden';
         let issueId = document.getElementById('issueID').value;
 
         if (issueId.length < 1) {
@@ -473,6 +475,7 @@
         list-style-type: none;
         list-style-position: inside;
         line-height: 6vh;
+        padding-top:3%;
         font-size: medium;
         top: 10%;
         height: 50%;
@@ -481,7 +484,10 @@
         -moz-columns: 5;
         overflow-y: auto;
     }
-
+    #metrics{
+        padding-top:3%;
+        padding-left:3%;
+    }
     #gameInfo {
         background-color: rgb(24, 23, 23);
         display: flex;
@@ -498,7 +504,20 @@
     #gameInfo #IssueIDDiv {
         flex-grow: 0;
     }
-    
+    p#EnterIssueText {
+        min-width: fit-content;
+        margin-right: 3%;
+        padding-top: 7px;
+    }
+    button#getVotes {
+        margin-left: 3px;
+    }
+    button#issueIDButton {
+        margin-left: 3px;
+    }
+    button#getVotes {
+        margin-left: 3px;
+    }
     .button {
         background-color: transparent;
         width: 9vw;
